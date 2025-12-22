@@ -84,7 +84,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Additional chart types
 - Real-time data updates
 - REST API endpoints for external access
-- Multisite support enhancements
 
 ---
 
