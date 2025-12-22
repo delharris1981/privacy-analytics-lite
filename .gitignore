@@ -1,0 +1,23 @@
+# .gitignore file created for free with Tower (https://www.git-tower.com/)
+# For suggestions or improvements please contact us using support@git-tower.com
+# Generated on 2025-12-19
+# Includes: Cursor
+
+### Universal ###
+# Common files that should be ignored in all projects
+
+.cursor/
+.git
+
+#MacOS files
+.DS_Store
+
+#Windows files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+#Linux files
+.directory
+.Trash
+.Trash-*
