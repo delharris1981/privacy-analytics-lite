@@ -1,0 +1,49 @@
+---
+description: Rules for Privacy-First Analytics Lite (PHP 8.2, Server-side Tracking, Aggregated Data)
+globs: **/*.php
+---
+
+# Privacy-First Analytics Lite: Implementation Standards
+
+## 1. Tracking Strategy (Server-Side)
+- **Method:** Use the `template_redirect` hook for tracking to ensure WordPress is loaded but before the page is rendered.
+- **Cache-Busting:** Since we are using PHP tracking, advise the user if a page is heavily cached (e.g., Varnish/Cloudflare), server-side tracking might require a lightweight REST API fallback.
+- **Exclusions:** Automatically ignore logged-in administrators, 404s (unless specified), and common bot User Agents.
+
+## 2. Data Lifecycle (Aggregated)
+- **Raw Table:** Store raw "hits" in a temporary table (`{wp_prefix}pa_hits_temp`).
+- **Cron Aggregation:** Use `wp_scheduled_event` to run an hourly/daily task that moves data from `pa_hits_temp` to `pa_daily_stats` (aggregated by page/source).
+- **Pruning:** Automatically truncate the raw hits table after aggregation to keep the database size minimal.
+
+## 3. Tech Stack & UI
+- **Charting:** Use **Frappe Charts** for the admin dashboard. Enqueue it only on the plugin's admin page.
+- **PHP 8.2:** Use `readonly` classes for Data Transfer Objects (DTOs). Use `match()` for grouping referral sources (e.g., 't.co' -> 'Twitter').
+- **Namespacing:** `PrivacyAnalytics\Lite\...`
+- **Composer:** Use `vendor/autoload.php` for all class loading.
+
+## 4. Privacy Guardrails
+- **Hashing:** Create a `VisitorID` using `hash_hmac('sha256', $partial_ip . $user_agent, $daily_salt)`. 
+- **Salts:** The salt must rotate every 24 hours. Do not store the salt permanently.
+- **Anonymization:** Never store the actual `$partial_ip` in the database.
+
+## 5. Security
+- Use `check_admin_referer()` for all dashboard actions.
+- Use `absint()` for all numeric IDs and `esc_url()` for page paths.
+
+## 6. Recommended Project Structure
+privacy-analytics-lite/
+├── .cursor/
+│   └── rules/
+│       └── wordpress-plugin.mdc
+├── src/
+│   ├── Admin/            # Dashboard & Settings UI
+│   ├── Core/             # Plugin Setup & Service Container
+│   ├── Database/         # Table Creation & Aggregation Logic
+│   ├── Tracking/         # PHP Tracking Logic & Anonymization
+│   └── Models/           # Data Objects (PHP 8.2 Readonly)
+├── assets/
+│   ├── js/               # Dashboard JS (Frappe Charts init)
+│   └── css/              # Minimal Admin Styles
+├── vendor/               # Composer dependencies
+├── composer.json
+└── privacy-analytics-lite.php  # Entry Point

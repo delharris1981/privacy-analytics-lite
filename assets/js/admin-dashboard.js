@@ -4,7 +4,7 @@
  * @package PrivacyAnalytics\Lite
  */
 
-(function() {
+(function () {
 	'use strict';
 
 	/**

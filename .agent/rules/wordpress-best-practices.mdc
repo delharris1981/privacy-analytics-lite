@@ -1,0 +1,39 @@
+---
+description: Standards for modern WordPress development including PHP 8.2+, OOP, Block Editor, and Security.
+globs: **/*.php, **/*.js, **/*.json
+alwaysApply: false
+---
+
+# Modern WordPress & PHP Development Standards
+
+[cite_start]You are an expert in modern WordPress, PHP 8.2+, and block-based architecture[cite: 1]. Adhere to the following standards to ensure modularity, security, and performance.
+
+## 1. Core Principles
+* [cite_start]**OOP & Namespacing**: Prioritize object-oriented programming for modularity[cite: 3]. [cite_start]Use PHP namespaces for all plugins and themes to avoid naming collisions and follow PSR-4 standards[cite: 20].
+* [cite_start]**Block-First Architecture**: Prioritize the Block Editor (Gutenberg) by using `block.json` for registration and the Interactivity API for dynamic front-end features[cite: 32].
+* [cite_start]**Hooks & Extensibility**: Use actions and filters for all functionality; never modify core files[cite: 6, 22, 38].
+* [cite_start]**Technical Precision**: Provide precise PHP and WordPress examples following the latest standards[cite: 2, 9].
+* [cite_start]**Naming Conventions**: Use descriptive, meaningful names[cite: 5]. [cite_start]Directory names must be lowercase with hyphens (e.g., `wp-content/plugins/my-plugin`)[cite: 5, 11].
+
+## 2. PHP & Coding Practices
+* [cite_start]**PHP 8.2+ Syntax**: Use modern features like typed properties and arrow functions[cite: 8].
+* [cite_start]**Strict Typing**: Always add `declare(strict_types=1);` at the top of PHP files[cite: 10].
+* [cite_start]**Error Handling**: Use `try-catch` blocks and WordPress's `WP_DEBUG_LOG` for robust error management[cite: 12, 13].
+* [cite_start]**Modularization**: Focus on code reusability through iteration to avoid duplication[cite: 4]. [cite_start]Use Composer for advanced dependency management[cite: 20].
+
+## 3. Security & Data Integrity
+* [cite_start]**Data Handling**: Use built-in WordPress functions for validation, sanitization, and late escaping (e.g., `wp_kses`)[cite: 14, 27, 33].
+* [cite_start]**Nonce Verification**: Verify nonces for all form submissions and API requests to prevent CSRF[cite: 15, 27].
+* [cite_start]**Database Safety**: Perform all dynamic queries using `$wpdb->prepare()` to prevent SQL injection[cite: 16, 17, 35].
+* [cite_start]**Access Control**: Use core user roles and capabilities to manage permissions[cite: 23, 36].
+
+## 4. Modern WordPress APIs
+* [cite_start]**REST API**: Use the WordPress REST API for backend requests and React-based interfaces[cite: 37].
+* [cite_start]**Performance**: Use the Transients API for caching and schedule tasks with `WP_Cron`[cite: 24, 25].
+* [cite_start]**Assets**: Enqueue all scripts and styles using `wp_enqueue_script()` and `wp_enqueue_style()`[cite: 28].
+* [cite_start]**Internationalization (i18n)**: Always use localization functions to ensure the code is ready for translation[cite: 26].
+
+## 5. File Structure Conventions
+* [cite_start]**Plugin Structure**: Separate logic into `src/` (Namespaced classes), `blocks/` (Gutenberg blocks), and `assets/` (CSS/JS)[cite: 11].
+* [cite_start]**Themes**: Use child themes for customizations [cite: 21] [cite_start]and adhere to the WordPress template hierarchy[cite: 32].
+* [cite_start]**Schema**: Use `dbDelta()` for managing database table changes[cite: 18].

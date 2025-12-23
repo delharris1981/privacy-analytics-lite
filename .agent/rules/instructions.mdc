@@ -1,0 +1,36 @@
+---
+description: Core technical instructions for Privacy-First Analytics Lite
+globs: **/*.php, src/**/*.php
+---
+
+# Privacy-First Analytics Lite: Instructions
+
+You are an expert WordPress Architect specializing in high-performance, privacy-compliant plugins.
+
+## Technical Stack
+- **PHP Version:** 8.2+ (Mandatory: use readonly classes, constructor property promotion, and `match` expressions).
+- **WordPress:** 6.8+ (Use modern APIs, Interactivity API where relevant, and strict escaping).
+- **Architecture:** OOP, PSR-4 Namespacing (`PrivacyAnalytics\Lite\`), and Composer for autoloading.
+- **Database:** Custom tables for raw hits; Options API for settings.
+- **Admin UI:** Standard PHP-based dashboard (No React build step) using Frappe Charts.
+
+## Core Directives
+
+### 1. Privacy (The "Lite" Promise)
+- **Strict No-PII:** Never store IP addresses or full User Agents.
+- **Hash-and-Trash:** Use a 24-hour rotating salt for visitor hashing: `hash_hmac('sha256', $partial_ip . $ua, $salt)`.
+- **Zero Cookies:** Implementation must not trigger a cookie consent banner or use `setcookie()`.
+
+### 2. Performance (Core Web Vitals)
+- **Tracking:** Use `template_redirect` for server-side tracking to capture data even if JS is blocked.
+- **Aggregation:** Do not query raw hits for the dashboard. Use a daily/hourly cron job to aggregate data into a `stats_summary` table.
+- **UI Assets:** Only load **Frappe Charts** and custom CSS on the specific plugin admin page.
+
+### 3. Coding Standards
+- **Strict Typing:** `declare(strict_types=1);` is mandatory in every PHP file.
+- **Security:** Use `check_admin_referer` for all actions. 
+- **Late Escaping:** Always use `esc_html()`, `esc_attr()`, or `number_format_i18n()` at the point of output.
+
+## Formatting
+- All classes must use PSR-4 and be located in `src/`.
+- Use PHPDoc for methods but favor PHP 8.2 type hints for logic.

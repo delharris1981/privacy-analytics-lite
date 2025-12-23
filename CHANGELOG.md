@@ -5,6 +5,12 @@ All notable changes to Privacy-First Analytics Lite will be documented in this f
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.1] - 2025-12-23
+
+### Fixed
+- Dashboard charts appearing empty due to invalid CDN URL for Frappe Charts.
+- Switched Frappe Charts to a local asset (v1.6.2 UMD build) for improved reliability and privacy.
+
 ## [1.0.0] - 2025-12-22
 
 ### Added

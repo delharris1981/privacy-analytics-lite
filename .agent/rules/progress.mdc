@@ -1,0 +1,52 @@
+---
+description: Tracks project status and architectural decisions for Privacy-First Analytics Lite
+globs: **/*
+---
+
+# Project Progress: Privacy-First Analytics Lite
+
+## Status: ✅ All Phases Complete - Plugin Ready for Use
+
+### ✅ Completed
+- [x] Project Concept Defined (Privacy-First, Server-Side, Aggregated).
+- [x] Technology Stack Finalized (PHP 8.2, WP 6.8, Standard PHP Admin, Frappe Charts).
+- [x] Rule Sets Configured (`instructions.mdc`, `wordpress-best-practices.mdc`).
+- [x] **Phase 1: Foundation**
+    - [x] Generate `composer.json` with PSR-4 mapping.
+    - [x] Create main plugin entry point `privacy-analytics-lite.php`.
+    - [x] Build `src/Database/TableManager.php` (Using `dbDelta()` for custom tables).
+    - [x] Create `src/Core/Plugin.php` (Main orchestration class with activation/deactivation hooks).
+    - [x] Initialize directory structure (Admin, Tracking, Models, assets).
+- [x] **Phase 2: Tracking Engine**
+    - [x] Create `src/Models/Hit.php` (Readonly DTO for hit data transfer).
+    - [x] Create `src/Tracking/Anonymizer.php` (Privacy hashing with 24-hour rotating salt).
+    - [x] Create `src/Tracking/BotDetector.php` (Bot user agent detection).
+    - [x] Create `src/Tracking/ReferrerNormalizer.php` (Referrer grouping using match()).
+    - [x] Implement `src/Tracking/Tracker.php` (Hooked to `template_redirect`).
+    - [x] Update `src/Core/Plugin.php` to register tracking hooks.
+- [x] **Phase 3: Data Management**
+    - [x] Create `src/Database/Aggregator.php` (Cron-based data aggregation).
+    - [x] Implement aggregation logic (grouping by date/page/referrer).
+    - [x] Implement upsert logic for `pa_daily_stats` table.
+    - [x] Implement raw hits table pruning after aggregation.
+    - [x] Set up WordPress cron event (hourly aggregation).
+    - [x] Update `src/Core/Plugin.php` to schedule/unschedule cron on activation/deactivation.
+- [x] **Phase 4: Dashboard**
+    - [x] Create `src/Admin/Dashboard.php` (Standard PHP rendering with admin menu).
+    - [x] Create `assets/css/admin-dashboard.css` (Minimal admin styles).
+    - [x] Create `assets/js/admin-dashboard.js` (Frappe Charts initialization).
+    - [x] Implement data querying from `pa_daily_stats` table.
+    - [x] Implement summary statistics display.
+    - [x] Implement daily trends line chart.
+    - [x] Implement top pages bar chart and table.
+    - [x] Implement referral sources chart and table.
+    - [x] Enqueue Frappe Charts from CDN.
+    - [x] Update `src/Core/Plugin.php` to initialize admin dashboard.
+
+### 🎉 Project Complete
+All four phases have been successfully implemented. The Privacy-First Analytics Lite plugin is now fully functional and ready for use.
+
+## 📓 Significant Decisions
+- **Admin UI:** Standard PHP selected over React for simplicity and "Lite" footprint.
+- **Tracking:** Server-side PHP tracking to maximize accuracy.
+- **Charts:** Frappe Charts for lightweight, zero-dependency SVG visuals.
