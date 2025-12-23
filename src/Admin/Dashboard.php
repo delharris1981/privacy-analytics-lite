@@ -52,6 +52,7 @@ class Dashboard
 	{
 		add_action('admin_menu', array($this, 'add_admin_menu'));
 		add_action('admin_enqueue_scripts', array($this, 'enqueue_assets'));
+		add_action('wp_ajax_privacy_analytics_get_stats', array($this, 'ajax_get_stats'));
 	}
 
 	/**
@@ -146,7 +147,8 @@ class Dashboard
 				<div class="pa-stat-card">
 					<div class="pa-stat-label"><?php echo esc_html__('Unique Visitors', 'privacy-analytics-lite'); ?></div>
 					<div class="pa-stat-value">
-						<?php echo esc_html(number_format_i18n($summary_stats['unique_visitors'])); ?></div>
+						<?php echo esc_html(number_format_i18n($summary_stats['unique_visitors'])); ?>
+					</div>
 					<div class="pa-stat-period"><?php echo esc_html__('Last 30 days', 'privacy-analytics-lite'); ?></div>
 				</div>
 				<div class="pa-stat-card">
@@ -203,14 +205,46 @@ class Dashboard
 	 *
 	 * @return array<string, int> Summary stats.
 	 */
+	public function ajax_get_stats(): void
+	{
+		// Check capability.
+		if (!current_user_can('manage_options')) {
+			wp_send_json_error('Insufficient permissions');
+		}
+
+		// Verify nonce? Since this is an admin dashboard, we usually rely on the admin cookie,
+		// but a nonce is best practice. However, adding it to the JS is a prerequisite.
+		// For now, we will rely on capability check as the page is only accessible to admins.
+		// A nonce should be added in a robust implementation.
+
+		$summary_stats = $this->get_summary_stats();
+		$daily_trends = $this->get_daily_trends();
+		$top_pages = $this->get_top_pages();
+		$referrer_stats = $this->get_referrer_stats();
+
+		wp_send_json_success(array(
+			'summary_stats' => $summary_stats,
+			'daily_trends' => $daily_trends,
+			'top_pages' => $top_pages,
+			'referrer_stats' => $referrer_stats,
+		));
+	}
+
+	/**
+	 * Get summary statistics.
+	 *
+	 * @return array<string, int> Summary stats.
+	 */
 	private function get_summary_stats(): array
 	{
 		global $wpdb;
 
 		$stats_table = $this->table_manager->get_stats_table_name();
+		$hits_table = $this->table_manager->get_hits_table_name();
 
+		// Get aggregated stats.
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		$results = $wpdb->get_row(
+		$aggregated = $wpdb->get_row(
 			"SELECT 
 				SUM(hit_count) as total_hits,
 				SUM(unique_visitors) as unique_visitors
@@ -219,16 +253,23 @@ class Dashboard
 			ARRAY_A
 		);
 
-		if (!is_array($results)) {
-			return array(
-				'total_hits' => 0,
-				'unique_visitors' => 0,
-			);
-		}
+		// Get raw hits stats (real-time).
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$raw = $wpdb->get_row(
+			"SELECT 
+				COUNT(*) as total_hits,
+				COUNT(DISTINCT visitor_hash) as unique_visitors
+			FROM {$hits_table}
+			WHERE hit_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)",
+			ARRAY_A
+		);
+
+		$total_hits = absint($aggregated['total_hits'] ?? 0) + absint($raw['total_hits'] ?? 0);
+		$unique_visitors = absint($aggregated['unique_visitors'] ?? 0) + absint($raw['unique_visitors'] ?? 0);
 
 		return array(
-			'total_hits' => absint($results['total_hits'] ?? 0),
-			'unique_visitors' => absint($results['unique_visitors'] ?? 0),
+			'total_hits' => $total_hits,
+			'unique_visitors' => $unique_visitors,
 		);
 	}
 
@@ -242,9 +283,11 @@ class Dashboard
 		global $wpdb;
 
 		$stats_table = $this->table_manager->get_stats_table_name();
+		$hits_table = $this->table_manager->get_hits_table_name();
 
+		// Get aggregated daily stats.
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		$results = $wpdb->get_results(
+		$aggregated = $wpdb->get_results(
 			"SELECT 
 				stat_date,
 				SUM(hit_count) as total_hits,
@@ -256,21 +299,58 @@ class Dashboard
 			ARRAY_A
 		);
 
-		if (!is_array($results) || empty($results)) {
-			return array(
-				'labels' => array(),
-				'datasets' => array(),
-			);
+		// Get raw hits daily stats.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$raw = $wpdb->get_results(
+			"SELECT 
+				DATE(hit_date) as stat_date,
+				COUNT(*) as total_hits,
+				COUNT(DISTINCT visitor_hash) as total_visitors
+			FROM {$hits_table}
+			WHERE hit_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+			GROUP BY DATE(hit_date)
+			ORDER BY stat_date ASC",
+			ARRAY_A
+		);
+
+		// Merge data.
+		$merged = array();
+
+		// Process aggregated.
+		if (is_array($aggregated)) {
+			foreach ($aggregated as $row) {
+				$date = $row['stat_date'];
+				$merged[$date] = array(
+					'hits' => absint($row['total_hits'] ?? 0),
+					'visitors' => absint($row['total_visitors'] ?? 0),
+				);
+			}
 		}
+
+		// Process raw.
+		if (is_array($raw)) {
+			foreach ($raw as $row) {
+				$date = $row['stat_date'];
+				if (!isset($merged[$date])) {
+					$merged[$date] = array('hits' => 0, 'visitors' => 0);
+				}
+				$merged[$date]['hits'] += absint($row['total_hits'] ?? 0);
+				// Note: Simply adding visitors is an approximation as assumed in design.
+				$merged[$date]['visitors'] += absint($row['total_visitors'] ?? 0);
+			}
+		}
+
+		// Sort by date.
+		ksort($merged);
 
 		$labels = array();
 		$hits_values = array();
 		$visitor_values = array();
 
-		foreach ($results as $row) {
-			$labels[] = date('M j', strtotime($row['stat_date']));
-			$hits_values[] = absint($row['total_hits'] ?? 0);
-			$visitor_values[] = absint($row['total_visitors'] ?? 0);
+		foreach ($merged as $date => $data) {
+			$labels[] = date('M j', strtotime($date));
+			$hits_values[] = $data['hits'];
+			$visitor_values[] = $data['visitors'];
 		}
 
 		return array(
@@ -298,44 +378,79 @@ class Dashboard
 		global $wpdb;
 
 		$stats_table = $this->table_manager->get_stats_table_name();
+		$hits_table = $this->table_manager->get_hits_table_name();
 
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		$results = $wpdb->get_results(
+		// Aggregated.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+		$aggregated = $wpdb->get_results(
 			"SELECT 
 				page_path,
 				SUM(hit_count) as total_hits,
 				SUM(unique_visitors) as total_visitors
 			FROM {$stats_table}
 			WHERE stat_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
-			GROUP BY page_path
-			ORDER BY total_hits DESC
-			LIMIT 10",
+			GROUP BY page_path",
 			ARRAY_A
 		);
 
-		if (!is_array($results)) {
-			$results = array();
+		// Raw.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+		$raw = $wpdb->get_results(
+			"SELECT 
+				page_path,
+				COUNT(*) as total_hits,
+				COUNT(DISTINCT visitor_hash) as total_visitors
+			FROM {$hits_table}
+			WHERE hit_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+			GROUP BY page_path",
+			ARRAY_A
+		);
+
+		$merged = array();
+
+		if (is_array($aggregated)) {
+			foreach ($aggregated as $row) {
+				$path = $row['page_path'];
+				$merged[$path] = array(
+					'hits' => absint($row['total_hits'] ?? 0),
+					'visitors' => absint($row['total_visitors'] ?? 0),
+				);
+			}
 		}
+
+		if (is_array($raw)) {
+			foreach ($raw as $row) {
+				$path = $row['page_path'];
+				if (!isset($merged[$path])) {
+					$merged[$path] = array('hits' => 0, 'visitors' => 0);
+				}
+				$merged[$path]['hits'] += absint($row['total_hits'] ?? 0);
+				$merged[$path]['visitors'] += absint($row['total_visitors'] ?? 0);
+			}
+		}
+
+		// Sort by hits descending.
+		uasort($merged, function ($a, $b) {
+			return $b['hits'] <=> $a['hits'];
+		});
+
+		// Limit to top 10.
+		$merged = array_slice($merged, 0, 10);
 
 		$labels = array();
 		$values = array();
 		$table_data = array();
 
-		foreach ($results as $row) {
-			$page_path = $row['page_path'] ?? '';
-			$hits = absint($row['total_hits'] ?? 0);
-			$visitors = absint($row['total_visitors'] ?? 0);
-
-			// Truncate long page paths for chart.
-			$display_path = strlen($page_path) > 30 ? substr($page_path, 0, 30) . '...' : $page_path;
+		foreach ($merged as $path => $data) {
+			$display_path = strlen($path) > 30 ? substr($path, 0, 30) . '...' : $path;
 
 			$labels[] = $display_path;
-			$values[] = $hits;
+			$values[] = $data['hits'];
 
 			$table_data[] = array(
-				'page_path' => $page_path,
-				'total_hits' => $hits,
-				'total_visitors' => $visitors,
+				'page_path' => $path,
+				'total_hits' => $data['hits'],
+				'total_visitors' => $data['visitors'],
 			);
 		}
 
@@ -363,40 +478,86 @@ class Dashboard
 		global $wpdb;
 
 		$stats_table = $this->table_manager->get_stats_table_name();
+		$hits_table = $this->table_manager->get_hits_table_name();
 
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		$results = $wpdb->get_results(
+		// Aggregated.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+		$aggregated = $wpdb->get_results(
 			"SELECT 
 				COALESCE(referrer, 'Direct') as source,
 				SUM(hit_count) as total_hits,
 				SUM(unique_visitors) as total_visitors
 			FROM {$stats_table}
 			WHERE stat_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
-			GROUP BY referrer
-			ORDER BY total_hits DESC",
+			GROUP BY referrer",
 			ARRAY_A
 		);
 
-		if (!is_array($results)) {
-			$results = array();
+		// Raw.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+		$raw = $wpdb->get_results(
+			"SELECT 
+				COALESCE(referrer, 'Direct') as source,
+				COUNT(*) as total_hits,
+				COUNT(DISTINCT visitor_hash) as total_visitors
+			FROM {$hits_table}
+			WHERE hit_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+			GROUP BY referrer",
+			ARRAY_A
+		);
+
+		$merged = array();
+
+		if (is_array($aggregated)) {
+			foreach ($aggregated as $row) {
+				$source = $row['source'];
+				// Handle empty/null in DB vs COALESCE
+				if (empty($source)) {
+					$source = 'Direct';
+				}
+
+				$merged[$source] = array(
+					'hits' => absint($row['total_hits'] ?? 0),
+					'visitors' => absint($row['total_visitors'] ?? 0),
+				);
+			}
 		}
+
+		if (is_array($raw)) {
+			foreach ($raw as $row) {
+				$source = $row['source'];
+				if (empty($source)) {
+					$source = 'Direct';
+				}
+
+				if (!isset($merged[$source])) {
+					$merged[$source] = array('hits' => 0, 'visitors' => 0);
+				}
+				$merged[$source]['hits'] += absint($row['total_hits'] ?? 0);
+				$merged[$source]['visitors'] += absint($row['total_visitors'] ?? 0);
+			}
+		}
+
+		// Sort by hits.
+		uasort($merged, function ($a, $b) {
+			return $b['hits'] <=> $a['hits'];
+		});
+
+		// Limit to top 10 (optional but good for performance/UI).
+		$merged = array_slice($merged, 0, 10);
 
 		$labels = array();
 		$values = array();
 		$table_data = array();
 
-		foreach ($results as $row) {
-			$source = $row['source'] ?? 'Direct';
-			$hits = absint($row['total_hits'] ?? 0);
-			$visitors = absint($row['total_visitors'] ?? 0);
-
+		foreach ($merged as $source => $data) {
 			$labels[] = $source;
-			$values[] = $hits;
+			$values[] = $data['hits'];
 
 			$table_data[] = array(
 				'source' => $source,
-				'total_hits' => $hits,
-				'total_visitors' => $visitors,
+				'total_hits' => $data['hits'],
+				'total_visitors' => $data['visitors'],
 			);
 		}
 

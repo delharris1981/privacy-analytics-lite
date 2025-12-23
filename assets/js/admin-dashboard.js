@@ -7,6 +7,13 @@
 (function () {
 	'use strict';
 
+	// Store chart instances.
+	const charts = {
+		dailyTrends: null,
+		topPages: null,
+		referrer: null
+	};
+
 	/**
 	 * Initialize all charts when DOM is ready.
 	 */
@@ -25,6 +32,9 @@
 
 		// Initialize Referrer Chart (Bar Chart).
 		initReferrerChart();
+
+		// Start polling for real-time updates (every 30 seconds).
+		setInterval(fetchStats, 30000);
 	}
 
 	/**
@@ -42,7 +52,7 @@
 			return;
 		}
 
-		new frappe.Chart(chartElement, {
+		charts.dailyTrends = new frappe.Chart(chartElement, {
 			data: chartData,
 			type: 'line',
 			height: 300,
@@ -71,7 +81,7 @@
 			return;
 		}
 
-		new frappe.Chart(chartElement, {
+		charts.topPages = new frappe.Chart(chartElement, {
 			data: chartData,
 			type: 'bar',
 			height: 300,
@@ -95,7 +105,7 @@
 		}
 
 		// Use bar chart for referrers (more readable than pie for many sources).
-		new frappe.Chart(chartElement, {
+		charts.referrer = new frappe.Chart(chartElement, {
 			data: chartData,
 			type: 'bar',
 			height: 300,
@@ -120,6 +130,58 @@
 		} catch (e) {
 			console.error('Failed to parse chart data:', e);
 			return null;
+		}
+	}
+
+	/**
+	 * Fetch latest stats from the server.
+	 */
+	function fetchStats() {
+		if (typeof ajaxurl === 'undefined') {
+			return;
+		}
+
+		const params = new URLSearchParams({
+			action: 'privacy_analytics_get_stats'
+		});
+
+		fetch(ajaxurl + '?' + params.toString())
+			.then(response => response.json())
+			.then(response => {
+				if (response.success && response.data) {
+					updateDashboard(response.data);
+				}
+			})
+			.catch(error => console.error('Error fetching stats:', error));
+	}
+
+	/**
+	 * Update dashboard with new data.
+	 *
+	 * @param {Object} data New stats data.
+	 */
+	function updateDashboard(data) {
+		// Update Summary Stats
+		if (data.summary_stats) {
+			const totalHitsEl = document.querySelector('.pa-stat-card:nth-child(1) .pa-stat-value');
+			const uniqueVisitorsEl = document.querySelector('.pa-stat-card:nth-child(2) .pa-stat-value');
+
+			// We need a helper to format numbers to match PHP's number_format_i18n (simplified here for JS)
+			const formatNumber = (num) => new Intl.NumberFormat().format(num);
+
+			if (totalHitsEl) totalHitsEl.textContent = formatNumber(data.summary_stats.total_hits);
+			if (uniqueVisitorsEl) uniqueVisitorsEl.textContent = formatNumber(data.summary_stats.unique_visitors);
+		}
+
+		// Update Charts
+		if (charts.dailyTrends && data.daily_trends) {
+			charts.dailyTrends.update(data.daily_trends);
+		}
+		if (charts.topPages && data.top_pages && data.top_pages.chart_data) {
+			charts.topPages.update(data.top_pages.chart_data);
+		}
+		if (charts.referrer && data.referrer_stats && data.referrer_stats.chart_data) {
+			charts.referrer.update(data.referrer_stats.chart_data);
 		}
 	}
 

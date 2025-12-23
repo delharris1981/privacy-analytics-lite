@@ -89,10 +89,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.0] - 2025-12-23
+
+### Added
+- Real-time data updates for the dashboard (updates every 30 seconds).
+
 ### Planned Features
 - Date range picker for dashboard
 - Export functionality for statistics
 - Additional chart types
-- Real-time data updates
 - REST API endpoints for external access
 
