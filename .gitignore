@@ -6,7 +6,7 @@
 ### Universal ###
 # Common files that should be ignored in all projects
 
-.cursor/
+.agent/
 .git
 
 #MacOS files
