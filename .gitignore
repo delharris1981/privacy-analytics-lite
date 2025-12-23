@@ -4,10 +4,12 @@
 # Includes: Cursor
 
 ### Universal ###
-# Common files that should be ignored in all projects
-
+# Common folders that should be ignored in all projects
 .agent/
-.git
+.git/
+
+# Files to ignore in this projects
+composer.lock
 
 #MacOS files
 .DS_Store
