@@ -22,6 +22,7 @@ A privacy-compliant, server-side analytics plugin for WordPress that tracks page
 
 ### Beautiful Dashboard
 - **Visual Analytics**: Interactive charts powered by Frappe Charts
+- **Date Filtering**: View statistics by Last 7, 30, 90 days, or custom date ranges
 - **Key Metrics**: Total hits, unique visitors, top pages, and referral sources
 - **Easy to Use**: Clean, intuitive admin interface
 

@@ -126,15 +126,39 @@ class Dashboard
 			wp_die(esc_html__('You do not have sufficient permissions to access this page.', 'privacy-analytics-lite'));
 		}
 
+		// Defaults to last 30 days which matches the JS default.
+		// We'll let JS handle the initial fetch or do a default fetch here.
+		// For SSR consistency, we compute defaults.
+		$end_date = current_time('Y-m-d');
+		$start_date = date('Y-m-d', strtotime('-29 days', strtotime($end_date)));
+
 		// Get stats data.
-		$summary_stats = $this->get_summary_stats();
-		$daily_trends = $this->get_daily_trends();
-		$top_pages = $this->get_top_pages();
-		$referrer_stats = $this->get_referrer_stats();
+		$summary_stats = $this->get_summary_stats($start_date, $end_date);
+		$daily_trends = $this->get_daily_trends($start_date, $end_date);
+		$top_pages = $this->get_top_pages($start_date, $end_date);
+		$referrer_stats = $this->get_referrer_stats($start_date, $end_date);
 
 		?>
 		<div class="wrap privacy-analytics-dashboard">
-			<h1><?php echo esc_html__('Privacy Analytics', 'privacy-analytics-lite'); ?></h1>
+			<div class="pa-header">
+				<h1><?php echo esc_html__('Privacy Analytics', 'privacy-analytics-lite'); ?></h1>
+				
+				<div class="pa-date-controls">
+					<select id="pa-date-range-selector" class="pa-select">
+						<option value="7"><?php echo esc_html__('Last 7 Days', 'privacy-analytics-lite'); ?></option>
+						<option value="30" selected><?php echo esc_html__('Last 30 Days', 'privacy-analytics-lite'); ?></option>
+						<option value="90"><?php echo esc_html__('Last 90 Days', 'privacy-analytics-lite'); ?></option>
+						<option value="custom"><?php echo esc_html__('Custom Range', 'privacy-analytics-lite'); ?></option>
+					</select>
+
+					<div id="pa-custom-date-inputs" class="pa-date-inputs" style="display: none;">
+						<input type="date" id="pa-date-start" value="<?php echo esc_attr($start_date); ?>" max="<?php echo esc_attr($end_date); ?>">
+						<span class="pa-date-separator">-</span>
+						<input type="date" id="pa-date-end" value="<?php echo esc_attr($end_date); ?>" max="<?php echo esc_attr($end_date); ?>">
+						<button type="button" id="pa-date-apply" class="button button-secondary"><?php echo esc_html__('Apply', 'privacy-analytics-lite'); ?></button>
+					</div>
+				</div>
+			</div>
 
 			<!-- Summary Stats Cards -->
 			<div class="pa-stats-grid">
@@ -212,15 +236,21 @@ class Dashboard
 			wp_send_json_error('Insufficient permissions');
 		}
 
-		// Verify nonce? Since this is an admin dashboard, we usually rely on the admin cookie,
-		// but a nonce is best practice. However, adding it to the JS is a prerequisite.
-		// For now, we will rely on capability check as the page is only accessible to admins.
-		// A nonce should be added in a robust implementation.
+		// Get date range from request.
+		$date_start = isset($_GET['date_start']) ? sanitize_text_field(wp_unslash($_GET['date_start'])) : '';
+		$date_end = isset($_GET['date_end']) ? sanitize_text_field(wp_unslash($_GET['date_end'])) : '';
 
-		$summary_stats = $this->get_summary_stats();
-		$daily_trends = $this->get_daily_trends();
-		$top_pages = $this->get_top_pages();
-		$referrer_stats = $this->get_referrer_stats();
+		// Validate dates.
+		if (!$date_start || !$date_end) {
+			// Fallback to last 30 days.
+			$date_end = current_time('Y-m-d');
+			$date_start = date('Y-m-d', strtotime('-29 days', strtotime($date_end)));
+		}
+
+		$summary_stats = $this->get_summary_stats($date_start, $date_end);
+		$daily_trends = $this->get_daily_trends($date_start, $date_end);
+		$top_pages = $this->get_top_pages($date_start, $date_end);
+		$referrer_stats = $this->get_referrer_stats($date_start, $date_end);
 
 		wp_send_json_success(array(
 			'summary_stats' => $summary_stats,
@@ -235,7 +265,7 @@ class Dashboard
 	 *
 	 * @return array<string, int> Summary stats.
 	 */
-	private function get_summary_stats(): array
+	private function get_summary_stats(string $start_date, string $end_date): array
 	{
 		global $wpdb;
 
@@ -245,22 +275,30 @@ class Dashboard
 		// Get aggregated stats.
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$aggregated = $wpdb->get_row(
-			"SELECT 
-				SUM(hit_count) as total_hits,
-				SUM(unique_visitors) as unique_visitors
-			FROM {$stats_table}
-			WHERE stat_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)",
+			$wpdb->prepare(
+				"SELECT 
+					SUM(hit_count) as total_hits,
+					SUM(unique_visitors) as unique_visitors
+				FROM {$stats_table}
+				WHERE stat_date BETWEEN %s AND %s",
+				$start_date,
+				$end_date
+			),
 			ARRAY_A
 		);
 
 		// Get raw hits stats (real-time).
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$raw = $wpdb->get_row(
-			"SELECT 
-				COUNT(*) as total_hits,
-				COUNT(DISTINCT visitor_hash) as unique_visitors
-			FROM {$hits_table}
-			WHERE hit_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)",
+			$wpdb->prepare(
+				"SELECT 
+					COUNT(*) as total_hits,
+					COUNT(DISTINCT visitor_hash) as unique_visitors
+				FROM {$hits_table}
+				WHERE hit_date BETWEEN %s AND %s",
+				$start_date . ' 00:00:00',
+				$end_date . ' 23:59:59'
+			),
 			ARRAY_A
 		);
 
@@ -276,9 +314,11 @@ class Dashboard
 	/**
 	 * Get daily trends data for chart.
 	 *
+	 * @param string $start_date Start date (Y-m-d).
+	 * @param string $end_date   End date (Y-m-d).
 	 * @return array<string, array<int|string, mixed>> Chart data.
 	 */
-	private function get_daily_trends(): array
+	private function get_daily_trends(string $start_date, string $end_date): array
 	{
 		global $wpdb;
 
@@ -288,28 +328,36 @@ class Dashboard
 		// Get aggregated daily stats.
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$aggregated = $wpdb->get_results(
-			"SELECT 
-				stat_date,
-				SUM(hit_count) as total_hits,
-				SUM(unique_visitors) as total_visitors
-			FROM {$stats_table}
-			WHERE stat_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
-			GROUP BY stat_date
-			ORDER BY stat_date ASC",
+			$wpdb->prepare(
+				"SELECT 
+					stat_date,
+					SUM(hit_count) as total_hits,
+					SUM(unique_visitors) as total_visitors
+				FROM {$stats_table}
+				WHERE stat_date BETWEEN %s AND %s
+				GROUP BY stat_date
+				ORDER BY stat_date ASC",
+				$start_date,
+				$end_date
+			),
 			ARRAY_A
 		);
 
 		// Get raw hits daily stats.
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$raw = $wpdb->get_results(
-			"SELECT 
-				DATE(hit_date) as stat_date,
-				COUNT(*) as total_hits,
-				COUNT(DISTINCT visitor_hash) as total_visitors
-			FROM {$hits_table}
-			WHERE hit_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
-			GROUP BY DATE(hit_date)
-			ORDER BY stat_date ASC",
+			$wpdb->prepare(
+				"SELECT 
+					DATE(hit_date) as stat_date,
+					COUNT(*) as total_hits,
+					COUNT(DISTINCT visitor_hash) as total_visitors
+				FROM {$hits_table}
+				WHERE hit_date BETWEEN %s AND %s
+				GROUP BY DATE(hit_date)
+				ORDER BY stat_date ASC",
+				$start_date . ' 00:00:00',
+				$end_date . ' 23:59:59'
+			),
 			ARRAY_A
 		);
 
@@ -371,9 +419,11 @@ class Dashboard
 	/**
 	 * Get top pages data.
 	 *
+	 * @param string $start_date Start date (Y-m-d).
+	 * @param string $end_date   End date (Y-m-d).
 	 * @return array<string, array<int, array<string, mixed>>> Top pages data.
 	 */
-	private function get_top_pages(): array
+	private function get_top_pages(string $start_date, string $end_date): array
 	{
 		global $wpdb;
 
@@ -383,26 +433,34 @@ class Dashboard
 		// Aggregated.
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 		$aggregated = $wpdb->get_results(
-			"SELECT 
-				page_path,
-				SUM(hit_count) as total_hits,
-				SUM(unique_visitors) as total_visitors
-			FROM {$stats_table}
-			WHERE stat_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
-			GROUP BY page_path",
+			$wpdb->prepare(
+				"SELECT 
+					page_path,
+					SUM(hit_count) as total_hits,
+					SUM(unique_visitors) as total_visitors
+				FROM {$stats_table}
+				WHERE stat_date BETWEEN %s AND %s
+				GROUP BY page_path",
+				$start_date,
+				$end_date
+			),
 			ARRAY_A
 		);
 
 		// Raw.
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 		$raw = $wpdb->get_results(
-			"SELECT 
-				page_path,
-				COUNT(*) as total_hits,
-				COUNT(DISTINCT visitor_hash) as total_visitors
-			FROM {$hits_table}
-			WHERE hit_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
-			GROUP BY page_path",
+			$wpdb->prepare(
+				"SELECT 
+					page_path,
+					COUNT(*) as total_hits,
+					COUNT(DISTINCT visitor_hash) as total_visitors
+				FROM {$hits_table}
+				WHERE hit_date BETWEEN %s AND %s
+				GROUP BY page_path",
+				$start_date . ' 00:00:00',
+				$end_date . ' 23:59:59'
+			),
 			ARRAY_A
 		);
 
@@ -471,9 +529,11 @@ class Dashboard
 	/**
 	 * Get referrer statistics.
 	 *
+	 * @param string $start_date Start date (Y-m-d).
+	 * @param string $end_date   End date (Y-m-d).
 	 * @return array<string, array<int, array<string, mixed>>> Referrer stats data.
 	 */
-	private function get_referrer_stats(): array
+	private function get_referrer_stats(string $start_date, string $end_date): array
 	{
 		global $wpdb;
 
@@ -483,26 +543,34 @@ class Dashboard
 		// Aggregated.
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 		$aggregated = $wpdb->get_results(
-			"SELECT 
-				COALESCE(referrer, 'Direct') as source,
-				SUM(hit_count) as total_hits,
-				SUM(unique_visitors) as total_visitors
-			FROM {$stats_table}
-			WHERE stat_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
-			GROUP BY referrer",
+			$wpdb->prepare(
+				"SELECT 
+					COALESCE(referrer, 'Direct') as source,
+					SUM(hit_count) as total_hits,
+					SUM(unique_visitors) as total_visitors
+				FROM {$stats_table}
+				WHERE stat_date BETWEEN %s AND %s
+				GROUP BY referrer",
+				$start_date,
+				$end_date
+			),
 			ARRAY_A
 		);
 
 		// Raw.
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 		$raw = $wpdb->get_results(
-			"SELECT 
-				COALESCE(referrer, 'Direct') as source,
-				COUNT(*) as total_hits,
-				COUNT(DISTINCT visitor_hash) as total_visitors
-			FROM {$hits_table}
-			WHERE hit_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
-			GROUP BY referrer",
+			$wpdb->prepare(
+				"SELECT 
+					COALESCE(referrer, 'Direct') as source,
+					COUNT(*) as total_hits,
+					COUNT(DISTINCT visitor_hash) as total_visitors
+				FROM {$hits_table}
+				WHERE hit_date BETWEEN %s AND %s
+				GROUP BY referrer",
+				$start_date . ' 00:00:00',
+				$end_date . ' 23:59:59'
+			),
 			ARRAY_A
 		);
 

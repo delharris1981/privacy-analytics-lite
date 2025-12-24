@@ -100,6 +100,36 @@
 	margin-top: 10px;
 }
 
+/* Date Controls */
+.pa-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 20px;
+	flex-wrap: wrap;
+	gap: 10px;
+}
+
+.pa-header h1 {
+	padding: 0;
+}
+
+.pa-date-controls {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
+
+.pa-date-inputs {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
+
+.pa-date-separator {
+	color: #646970;
+}
+
 /* Responsive Design */
 @media screen and (max-width: 782px) {
 	.pa-stats-grid {

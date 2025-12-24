@@ -14,6 +14,13 @@
 		referrer: null
 	};
 
+	// State for date range
+	let currentDateRange = {
+		start: '',
+		end: '',
+		mode: '30' // 7, 30, 90, or 'custom'
+	};
+
 	/**
 	 * Initialize all charts when DOM is ready.
 	 */
@@ -23,6 +30,9 @@
 			console.error('Frappe Charts library not loaded');
 			return;
 		}
+
+		// Initialize UI controls
+		initDateControls();
 
 		// Initialize Daily Trends Chart (Line Chart).
 		initDailyTrendsChart();
@@ -35,6 +45,64 @@
 
 		// Start polling for real-time updates (every 30 seconds).
 		setInterval(fetchStats, 30000);
+	}
+
+	/**
+	 * Initialize date picker controls.
+	 */
+	function initDateControls() {
+		const selector = document.getElementById('pa-date-range-selector');
+		const customInputs = document.getElementById('pa-custom-date-inputs');
+		const applyBtn = document.getElementById('pa-date-apply');
+		const startDateInput = document.getElementById('pa-date-start');
+		const endDateInput = document.getElementById('pa-date-end');
+
+		if (!selector) return;
+
+		// Initialize state from server-rendered values if possible.
+		if (startDateInput && endDateInput) {
+			currentDateRange.start = startDateInput.value;
+			currentDateRange.end = endDateInput.value;
+		}
+
+		// Selector change handler
+		selector.addEventListener('change', function () {
+			const value = this.value;
+			currentDateRange.mode = value;
+
+			if (value === 'custom') {
+				customInputs.style.display = 'flex';
+			} else {
+				customInputs.style.display = 'none';
+				// Calculate dates for presets
+				const end = new Date();
+				const start = new Date();
+				start.setDate(end.getDate() - (parseInt(value) - 1));
+
+				const formatDate = (d) => d.toISOString().split('T')[0];
+
+				currentDateRange.end = formatDate(end);
+				currentDateRange.start = formatDate(start);
+
+				// Update inputs for consistency
+				if (startDateInput) startDateInput.value = currentDateRange.start;
+				if (endDateInput) endDateInput.value = currentDateRange.end;
+
+				// Fetch new stats
+				fetchStats();
+			}
+		});
+
+		// Apply button handler
+		if (applyBtn) {
+			applyBtn.addEventListener('click', function () {
+				if (startDateInput && endDateInput) {
+					currentDateRange.start = startDateInput.value;
+					currentDateRange.end = endDateInput.value;
+					fetchStats();
+				}
+			});
+		}
 	}
 
 	/**
@@ -126,6 +194,7 @@
 		}
 
 		try {
+			if (typeof dataAttr === 'object') return dataAttr;
 			return JSON.parse(dataAttr);
 		} catch (e) {
 			console.error('Failed to parse chart data:', e);
@@ -142,7 +211,9 @@
 		}
 
 		const params = new URLSearchParams({
-			action: 'privacy_analytics_get_stats'
+			action: 'privacy_analytics_get_stats',
+			date_start: currentDateRange.start,
+			date_end: currentDateRange.end
 		});
 
 		fetch(ajaxurl + '?' + params.toString())
@@ -183,6 +254,55 @@
 		if (charts.referrer && data.referrer_stats && data.referrer_stats.chart_data) {
 			charts.referrer.update(data.referrer_stats.chart_data);
 		}
+		
+		// Update Tables
+		if (data.top_pages && data.top_pages.table_data) {
+			updateTable('.pa-tables-grid .pa-table-container:nth-child(1) tbody', data.top_pages.table_data, ['page_path', 'total_hits', 'total_visitors']);
+		}
+		
+		if (data.referrer_stats && data.referrer_stats.table_data) {
+			updateTable('.pa-tables-grid .pa-table-container:nth-child(2) tbody', data.referrer_stats.table_data, ['source', 'total_hits', 'total_visitors']);
+		}
+	}
+
+	/**
+	 * Helper to update table body.
+	 * @param {string} selector CSS selector for tbody
+	 * @param {Array} data Array of row objects
+	 * @param {Array} fields Array of field keys
+	 */
+	function updateTable(selector, data, fields) {
+		const tbody = document.querySelector(selector);
+		if (!tbody) return;
+
+		if (!data || data.length === 0) {
+			tbody.innerHTML = '<tr><td colspan="3">No data available.</td></tr>';
+			return;
+		}
+
+		const formatNumber = (num) => new Intl.NumberFormat().format(num);
+
+		tbody.innerHTML = data.map(row => {
+			return `<tr>
+				<td>${escapeHtml(row[fields[0]] || (fields[0] === 'source' ? 'Direct' : ''))}</td>
+				<td>${formatNumber(row[fields[1]] || 0)}</td>
+				<td>${formatNumber(row[fields[2]] || 0)}</td>
+			</tr>`;
+		}).join('');
+	}
+
+	/**
+	 * Simple HTML escape
+	 */
+	function escapeHtml(text) {
+		if (!text) return '';
+		return text
+			.toString()
+			.replace(/&/g, "&amp;")
+			.replace(/</g, "&lt;")
+			.replace(/>/g, "&gt;")
+			.replace(/"/g, "&quot;")
+			.replace(/'/g, "&#039;");
 	}
 
 	// Initialize when DOM is ready.
