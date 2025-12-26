@@ -135,6 +135,7 @@ class Dashboard
 		// Get stats data.
 		$summary_stats = $this->get_summary_stats($start_date, $end_date);
 		$daily_trends = $this->get_daily_trends($start_date, $end_date);
+		$hourly_stats = $this->get_hourly_stats();
 		$top_pages = $this->get_top_pages($start_date, $end_date);
 		$referrer_stats = $this->get_referrer_stats($start_date, $end_date);
 
@@ -142,7 +143,7 @@ class Dashboard
 		<div class="wrap privacy-analytics-dashboard">
 			<div class="pa-header">
 				<h1><?php echo esc_html__('Privacy Analytics', 'privacy-analytics-lite'); ?></h1>
-				
+
 				<div class="pa-date-controls">
 					<select id="pa-date-range-selector" class="pa-select">
 						<option value="7"><?php echo esc_html__('Last 7 Days', 'privacy-analytics-lite'); ?></option>
@@ -152,10 +153,13 @@ class Dashboard
 					</select>
 
 					<div id="pa-custom-date-inputs" class="pa-date-inputs" style="display: none;">
-						<input type="date" id="pa-date-start" value="<?php echo esc_attr($start_date); ?>" max="<?php echo esc_attr($end_date); ?>">
+						<input type="date" id="pa-date-start" value="<?php echo esc_attr($start_date); ?>"
+							max="<?php echo esc_attr($end_date); ?>">
 						<span class="pa-date-separator">-</span>
-						<input type="date" id="pa-date-end" value="<?php echo esc_attr($end_date); ?>" max="<?php echo esc_attr($end_date); ?>">
-						<button type="button" id="pa-date-apply" class="button button-secondary"><?php echo esc_html__('Apply', 'privacy-analytics-lite'); ?></button>
+						<input type="date" id="pa-date-end" value="<?php echo esc_attr($end_date); ?>"
+							max="<?php echo esc_attr($end_date); ?>">
+						<button type="button" id="pa-date-apply"
+							class="button button-secondary"><?php echo esc_html__('Apply', 'privacy-analytics-lite'); ?></button>
 					</div>
 				</div>
 			</div>
@@ -189,7 +193,27 @@ class Dashboard
 					data-chart-data="<?php echo esc_attr(wp_json_encode($daily_trends)); ?>"></div>
 			</div>
 
-			<!-- Charts Grid -->
+
+
+			<!-- New Charts Grid -->
+			<div class="pa-charts-grid">
+				<!-- Hourly Traffic Chart -->
+				<div class="pa-chart-container">
+					<h2><?php echo esc_html__('Hourly Traffic (Last 24h)', 'privacy-analytics-lite'); ?></h2>
+					<div id="pa-hourly-chart" class="pa-chart"
+						data-chart-data="<?php echo esc_attr(wp_json_encode($hourly_stats)); ?>"></div>
+				</div>
+
+				<!-- Referrer Distribution Chart (Donut) -->
+				<div class="pa-chart-container">
+					<h2><?php echo esc_html__('Referrer Distribution', 'privacy-analytics-lite'); ?></h2>
+					<div id="pa-referrer-donut-chart" class="pa-chart"
+						data-chart-data="<?php echo esc_attr(wp_json_encode($referrer_stats['chart_data'])); ?>"></div>
+				</div>
+			</div>
+
+
+			<!-- Existing Charts Grid -->
 			<div class="pa-charts-grid">
 				<!-- Top Pages Chart -->
 				<div class="pa-chart-container">
@@ -249,12 +273,14 @@ class Dashboard
 
 		$summary_stats = $this->get_summary_stats($date_start, $date_end);
 		$daily_trends = $this->get_daily_trends($date_start, $date_end);
+		$hourly_stats = $this->get_hourly_stats();
 		$top_pages = $this->get_top_pages($date_start, $date_end);
 		$referrer_stats = $this->get_referrer_stats($date_start, $date_end);
 
 		wp_send_json_success(array(
 			'summary_stats' => $summary_stats,
 			'daily_trends' => $daily_trends,
+			'hourly_stats' => $hourly_stats,
 			'top_pages' => $top_pages,
 			'referrer_stats' => $referrer_stats,
 		));
@@ -411,6 +437,69 @@ class Dashboard
 				array(
 					'name' => __('Unique Visitors', 'privacy-analytics-lite'),
 					'values' => $visitor_values,
+				),
+			),
+		);
+	}
+
+
+
+	/**
+	 * Get hourly stats for the last 24 hours.
+	 *
+	 * @return array<string, array<int|string, mixed>> Chart data.
+	 */
+	private function get_hourly_stats(): array
+	{
+		global $wpdb;
+
+		$hits_table = $this->table_manager->get_hits_table_name();
+
+		// Get hits for last 24 hours.
+		$end_time = current_time('mysql');
+		$start_time = date('Y-m-d H:i:s', strtotime('-24 hours', strtotime($end_time)));
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+		$results = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT 
+					DATE_FORMAT(hit_date, '%%H:00') as hour_label,
+					COUNT(*) as hits
+				FROM {$hits_table}
+				WHERE hit_date >= %s
+				GROUP BY DATE_FORMAT(hit_date, '%%Y-%%m-%%d %%H')
+				ORDER BY hit_date ASC",
+				$start_time
+			),
+			ARRAY_A
+		);
+
+		$data_map = array();
+		if (is_array($results)) {
+			foreach ($results as $row) {
+				$data_map[$row['hour_label']] = absint($row['hits']);
+			}
+		}
+
+		// Fill in missing hours.
+		$labels = array();
+		$values = array();
+		// We want to show the next 24 hours from start.
+		for ($i = 0; $i <= 23; $i++) {
+			$timestamp = strtotime("+{$i} hours", strtotime($start_time));
+			// Round to hour
+			$label = date('H:00', $timestamp);
+
+			$labels[] = $label;
+			$values[] = $data_map[$label] ?? 0;
+		}
+
+		return array(
+			'labels' => $labels,
+			'datasets' => array(
+				array(
+					'name' => __('Hourly Hits', 'privacy-analytics-lite'),
+					'values' => $values,
 				),
 			),
 		);

@@ -10,8 +10,10 @@
 	// Store chart instances.
 	const charts = {
 		dailyTrends: null,
+		hourly: null,
 		topPages: null,
-		referrer: null
+		referrer: null,
+		referrerDonut: null
 	};
 
 	// State for date range
@@ -37,11 +39,17 @@
 		// Initialize Daily Trends Chart (Line Chart).
 		initDailyTrendsChart();
 
+		// Initialize Hourly Chart (Bar Chart).
+		initHourlyChart();
+
 		// Initialize Top Pages Chart (Bar Chart).
 		initTopPagesChart();
 
 		// Initialize Referrer Chart (Bar Chart).
 		initReferrerChart();
+
+		// Initialize Referrer Donut Chart.
+		initReferrerDonutChart();
 
 		// Start polling for real-time updates (every 30 seconds).
 		setInterval(fetchStats, 30000);
@@ -135,6 +143,29 @@
 	}
 
 	/**
+	 * Initialize hourly chart.
+	 */
+	function initHourlyChart() {
+		const chartElement = document.getElementById('pa-hourly-chart');
+		if (!chartElement) {
+			return;
+		}
+
+		const chartData = getChartData(chartElement);
+		if (!chartData || !chartData.labels || chartData.labels.length === 0) {
+			chartElement.innerHTML = '<p>No data available for the last 24 hours.</p>';
+			return;
+		}
+
+		charts.hourly = new frappe.Chart(chartElement, {
+			data: chartData,
+			type: 'bar',
+			height: 300,
+			colors: ['#2271b1']
+		});
+	}
+
+	/**
 	 * Initialize top pages bar chart.
 	 */
 	function initTopPagesChart() {
@@ -178,6 +209,29 @@
 			type: 'bar',
 			height: 300,
 			colors: ['#00a32a']
+		});
+	}
+
+	/**
+	 * Initialize referrer donut chart.
+	 */
+	function initReferrerDonutChart() {
+		const chartElement = document.getElementById('pa-referrer-donut-chart');
+		if (!chartElement) {
+			return;
+		}
+
+		const chartData = getChartData(chartElement);
+		if (!chartData || !chartData.labels || chartData.labels.length === 0) {
+			chartElement.innerHTML = '<p>No data available.</p>';
+			return;
+		}
+
+		charts.referrerDonut = new frappe.Chart(chartElement, {
+			data: chartData,
+			type: 'donut',
+			height: 300,
+			colors: ['#00a32a', '#2271b1', '#d63638', '#f0c33c', '#3582c4', '#646970'] // WordPress core colors
 		});
 	}
 
@@ -248,18 +302,24 @@
 		if (charts.dailyTrends && data.daily_trends) {
 			charts.dailyTrends.update(data.daily_trends);
 		}
+		if (charts.hourly && data.hourly_stats) {
+			charts.hourly.update(data.hourly_stats);
+		}
 		if (charts.topPages && data.top_pages && data.top_pages.chart_data) {
 			charts.topPages.update(data.top_pages.chart_data);
 		}
 		if (charts.referrer && data.referrer_stats && data.referrer_stats.chart_data) {
 			charts.referrer.update(data.referrer_stats.chart_data);
 		}
-		
+		if (charts.referrerDonut && data.referrer_stats && data.referrer_stats.chart_data) {
+			charts.referrerDonut.update(data.referrer_stats.chart_data);
+		}
+
 		// Update Tables
 		if (data.top_pages && data.top_pages.table_data) {
 			updateTable('.pa-tables-grid .pa-table-container:nth-child(1) tbody', data.top_pages.table_data, ['page_path', 'total_hits', 'total_visitors']);
 		}
-		
+
 		if (data.referrer_stats && data.referrer_stats.table_data) {
 			updateTable('.pa-tables-grid .pa-table-container:nth-child(2) tbody', data.referrer_stats.table_data, ['source', 'total_hits', 'total_visitors']);
 		}
