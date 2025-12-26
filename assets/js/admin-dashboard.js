@@ -335,20 +335,46 @@
 		const tbody = document.querySelector(selector);
 		if (!tbody) return;
 
+		// Clear existing content
+		while (tbody.firstChild) {
+			tbody.removeChild(tbody.firstChild);
+		}
+
 		if (!data || data.length === 0) {
-			tbody.innerHTML = '<tr><td colspan="3">No data available.</td></tr>';
+			const row = document.createElement('tr');
+			const cell = document.createElement('td');
+			cell.colSpan = 3;
+			cell.textContent = 'No data available.';
+			row.appendChild(cell);
+			tbody.appendChild(row);
 			return;
 		}
 
 		const formatNumber = (num) => new Intl.NumberFormat().format(num);
 
-		tbody.innerHTML = data.map(row => {
-			return `<tr>
-				<td>${escapeHtml(row[fields[0]] || (fields[0] === 'source' ? 'Direct' : ''))}</td>
-				<td>${formatNumber(row[fields[1]] || 0)}</td>
-				<td>${formatNumber(row[fields[2]] || 0)}</td>
-			</tr>`;
-		}).join('');
+		data.forEach(rowData => {
+			const row = document.createElement('tr');
+
+			// Col 1: Label/Source
+			const cell1 = document.createElement('td');
+			const val1 = rowData[fields[0]] || (fields[0] === 'source' ? 'Direct' : '');
+			cell1.textContent = val1;
+			row.appendChild(cell1);
+
+			// Col 2: Hits
+			const cell2 = document.createElement('td');
+			const val2 = rowData[fields[1]] || 0;
+			cell2.textContent = formatNumber(val2);
+			row.appendChild(cell2);
+
+			// Col 3: Unique Visitors
+			const cell3 = document.createElement('td');
+			const val3 = rowData[fields[2]] || 0;
+			cell3.textContent = formatNumber(val3);
+			row.appendChild(cell3);
+
+			tbody.appendChild(row);
+		});
 	}
 
 	/**

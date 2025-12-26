@@ -5,6 +5,16 @@ All notable changes to Privacy-First Analytics Lite will be documented in this f
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.1] - 2025-12-26
+
+### Security
+- Fixed DOM-based Cross-Site Scripting (XSS) vulnerability in dashboard tables by replacing `innerHTML` with safe DOM element creation.
+
+## [1.3.0] - 2025-12-26
+
+### Added
+- Hourly traffic chart (last 24 hours).
+- Referrer distribution donut chart.
 ## [1.2.0] - 2025-12-24
 
 ### Added
