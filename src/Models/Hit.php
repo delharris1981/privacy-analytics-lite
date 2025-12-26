@@ -12,7 +12,8 @@ namespace PrivacyAnalytics\Lite\Models;
 /**
  * Immutable hit data transfer object.
  */
-readonly class Hit {
+readonly class Hit
+{
 
 	/**
 	 * Hashed visitor identifier.
@@ -65,11 +66,11 @@ readonly class Hit {
 		string $user_agent_hash,
 		string $hit_date
 	) {
-		$this->visitor_hash   = $visitor_hash;
-		$this->page_path      = $page_path;
-		$this->referrer       = $referrer;
+		$this->visitor_hash = $visitor_hash;
+		$this->page_path = $page_path;
+		$this->referrer = $referrer;
 		$this->user_agent_hash = $user_agent_hash;
-		$this->hit_date       = $hit_date;
+		$this->hit_date = $hit_date;
 	}
 }
 

@@ -12,14 +12,16 @@ namespace PrivacyAnalytics\Lite\Database;
 /**
  * Manages database tables for the plugin.
  */
-class TableManager {
+class TableManager
+{
 
 	/**
 	 * Create all plugin tables.
 	 *
 	 * @return void
 	 */
-	public function create_tables(): void {
+	public function create_tables(): void
+	{
 		global $wpdb;
 
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
@@ -28,7 +30,7 @@ class TableManager {
 
 		// Create pa_hits_temp table for raw hits.
 		$hits_table = $this->get_hits_table_name();
-		$hits_sql   = "CREATE TABLE {$hits_table} (
+		$hits_sql = "CREATE TABLE {$hits_table} (
 			id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
 			visitor_hash varchar(64) NOT NULL,
 			page_path varchar(255) NOT NULL,
@@ -40,11 +42,11 @@ class TableManager {
 			KEY visitor_hash (visitor_hash)
 		) {$charset_collate};";
 
-		dbDelta( $hits_sql );
+		dbDelta($hits_sql);
 
 		// Create pa_daily_stats table for aggregated statistics.
 		$stats_table = $this->get_stats_table_name();
-		$stats_sql   = "CREATE TABLE {$stats_table} (
+		$stats_sql = "CREATE TABLE {$stats_table} (
 			id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
 			stat_date date NOT NULL,
 			page_path varchar(255) NOT NULL,
@@ -56,7 +58,7 @@ class TableManager {
 			KEY page_path (page_path)
 		) {$charset_collate};";
 
-		dbDelta( $stats_sql );
+		dbDelta($stats_sql);
 	}
 
 	/**
@@ -64,16 +66,17 @@ class TableManager {
 	 *
 	 * @return void
 	 */
-	public function drop_tables(): void {
+	public function drop_tables(): void
+	{
 		global $wpdb;
 
-		$hits_table  = $this->get_hits_table_name();
+		$hits_table = $this->get_hits_table_name();
 		$stats_table = $this->get_stats_table_name();
 
 		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		$wpdb->query( "DROP TABLE IF EXISTS {$hits_table}" );
+		$wpdb->query("DROP TABLE IF EXISTS {$hits_table}");
 		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		$wpdb->query( "DROP TABLE IF EXISTS {$stats_table}" );
+		$wpdb->query("DROP TABLE IF EXISTS {$stats_table}");
 	}
 
 	/**
@@ -81,7 +84,8 @@ class TableManager {
 	 *
 	 * @return string
 	 */
-	public function get_hits_table_name(): string {
+	public function get_hits_table_name(): string
+	{
 		global $wpdb;
 		return $wpdb->prefix . 'pa_hits_temp';
 	}
@@ -91,7 +95,8 @@ class TableManager {
 	 *
 	 * @return string
 	 */
-	public function get_stats_table_name(): string {
+	public function get_stats_table_name(): string
+	{
 		global $wpdb;
 		return $wpdb->prefix . 'pa_daily_stats';
 	}

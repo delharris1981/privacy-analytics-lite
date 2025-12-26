@@ -5,6 +5,11 @@ All notable changes to Privacy-First Analytics Lite will be documented in this f
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.2] - 2025-12-26
+
+### Fixed
+- Internal domain referrer filtering: Automatically excludes traffic from subdomains of the current site (e.g. `cpcalendar.example.com`, `hostmaster.example.com`) from being counted as external referrers.
+
 ## [1.3.1] - 2025-12-26
 
 ### Security
