@@ -103,4 +103,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Export functionality for statistics
 - Additional chart types
 - REST API endpoints for external access
+- The "Zero-PII" Heatmap
 
