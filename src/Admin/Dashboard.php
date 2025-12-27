@@ -53,6 +53,7 @@ class Dashboard
 		add_action('admin_menu', array($this, 'add_admin_menu'));
 		add_action('admin_enqueue_scripts', array($this, 'enqueue_assets'));
 		add_action('wp_ajax_privacy_analytics_get_stats', array($this, 'ajax_get_stats'));
+		add_action('admin_notices', array($this, 'maybe_display_update_notice'));
 	}
 
 	/**
@@ -139,6 +140,13 @@ class Dashboard
 		$top_pages = $this->get_top_pages($start_date, $end_date);
 		$referrer_stats = $this->get_referrer_stats($start_date, $end_date);
 
+		// Check for update transient and set a flag for JS.
+		$is_updated = (bool) get_transient('pa_lite_updated');
+		if ($is_updated) {
+			add_filter('admin_body_class', function ($classes) {
+				return "$classes pa-just-updated";
+			});
+		}
 		?>
 		<div class="wrap privacy-analytics-dashboard">
 			<div class="pa-header">
@@ -800,6 +808,116 @@ class Dashboard
 			</tbody>
 		</table>
 		<?php
+	}
+
+	/**
+	 * Display update notice if transient is set.
+	 *
+	 * @return void
+	 */
+	public function maybe_display_update_notice(): void
+	{
+		$new_version = get_transient('pa_lite_updated');
+		if (!$new_version) {
+			return;
+		}
+
+		// Don't delete yet, we need it for the dashboard flag.
+		// It will expires in 60s anyway or be cleared below.
+
+		?>
+		<div class="pa-premium-notice notice">
+			<div class="pa-notice-content">
+				<div class="pa-notice-icon">
+					<span class="dashicons dashicons-sparkles"></span>
+				</div>
+				<div class="pa-notice-text">
+					<h3><?php echo esc_html(sprintf(__('Updated to version %s!', 'privacy-analytics-lite'), $new_version)); ?>
+					</h3>
+					<p><?php echo esc_html__('Welcome back! We\'ve polished your analytics dashboard.', 'privacy-analytics-lite'); ?>
+					</p>
+				</div>
+			</div>
+			<div class="pa-notice-actions">
+				<button type="button" id="pa-whats-new-btn" class="pa-btn-premium">
+					<?php echo esc_html__('What\'s New?', 'privacy-analytics-lite'); ?>
+				</button>
+			</div>
+		</div>
+
+		<?php $this->render_update_modal($new_version); ?>
+
+		<?php
+		// Clear it now that we've rendered the notice components.
+		delete_transient('pa_lite_updated');
+	}
+
+	/**
+	 * Render the update changelog modal.
+	 *
+	 * @param string $version New version.
+	 * @return void
+	 */
+	private function render_update_modal(string $version): void
+	{
+		$changelog = $this->get_latest_changelog_notes($version);
+		?>
+		<div class="pa-modal-overlay">
+			<div class="pa-modal">
+				<div class="pa-modal-header">
+					<h2><?php echo esc_html(sprintf(__('Version %s Release Notes', 'privacy-analytics-lite'), $version)); ?>
+					</h2>
+				</div>
+				<div class="pa-modal-body">
+					<?php if ($changelog): ?>
+						<div class="pa-changelog-content">
+							<?php echo wp_kses_post($changelog); ?>
+						</div>
+					<?php else: ?>
+						<p><?php echo esc_html__('No release notes found for this version.', 'privacy-analytics-lite'); ?></p>
+					<?php endif; ?>
+				</div>
+				<div class="pa-modal-footer">
+					<button type="button" id="pa-modal-close" class="pa-btn-premium">
+						<?php echo esc_html__('Got it, let\'s go!', 'privacy-analytics-lite'); ?>
+					</button>
+				</div>
+			</div>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Parse the CHANGELOG.md file for specific version notes.
+	 *
+	 * @param string $version Target version.
+	 * @return string|false HTML notes or false if not found.
+	 */
+	private function get_latest_changelog_notes(string $version): string|bool
+	{
+		$changelog_file = PRIVACY_ANALYTICS_LITE_PLUGIN_DIR . 'CHANGELOG.md';
+		if (!file_exists($changelog_file)) {
+			return false;
+		}
+
+		$content = file_get_contents($changelog_file);
+		if (!$content) {
+			return false;
+		}
+
+		// Look for the section for the given version.
+		// Format: ## [1.3.2] - 2025-12-26
+		$pattern = '/## \[' . preg_quote($version, '/') . '\] - .*?\n(.*?)(?=## \[|\z)/s';
+		if (preg_match($pattern, $content, $matches)) {
+			// Convert basic markdown to HTML (simple replacement for lists and headers)
+			$notes = $matches[1];
+			$notes = preg_replace('/### (.*?)\n/', '<h3>$1</h3>', $notes);
+			$notes = preg_replace('/- (.*?)\n/', '<li>$1</li>', $notes);
+			$notes = preg_replace('/(<li>.*?<\/li>)+/s', '<ul>$0</ul>', $notes);
+			return $notes;
+		}
+
+		return false;
 	}
 }
 

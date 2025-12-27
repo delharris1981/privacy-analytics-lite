@@ -1,0 +1,54 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          tools: composer
+
+      - name: Install dependencies
+        run: composer install --no-dev --optimize-autoloader
+
+      - name: Prepare Plugin for Zipping
+        run: |
+          # Create a temporary directory with the plugin slug
+          PLUGIN_SLUG="privacy-analytics-lite"
+          mkdir -p $PLUGIN_SLUG
+          
+          # Copy necessary files and directories
+          cp -r assets $PLUGIN_SLUG/
+          cp -r src $PLUGIN_SLUG/
+          cp -r vendor $PLUGIN_SLUG/
+          cp privacy-analytics-lite.php $PLUGIN_SLUG/
+          cp README.md $PLUGIN_SLUG/
+          cp CHANGELOG.md $PLUGIN_SLUG/
+          cp composer.json $PLUGIN_SLUG/
+          
+          # Zip the directory
+          zip -r $PLUGIN_SLUG.zip $PLUGIN_SLUG
+          
+          # Clean up temporary directory
+          rm -rf $PLUGIN_SLUG
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: privacy-analytics-lite.zip
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

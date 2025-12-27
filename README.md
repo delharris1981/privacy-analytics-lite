@@ -163,7 +163,6 @@ privacy-analytics-lite/
 
 - **WordPress Cron**: Aggregation runs on WordPress cron, which requires site traffic
 - **Cache Compatibility**: May require REST API fallback for heavily cached sites
-- **No Real-Time Data**: Data is aggregated hourly, not in real-time
 
 ## Support
 

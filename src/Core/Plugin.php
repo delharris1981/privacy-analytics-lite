@@ -20,7 +20,8 @@ use PrivacyAnalytics\Lite\Tracking\Tracker;
 /**
  * Main plugin class.
  */
-final class Plugin {
+final class Plugin
+{
 
 	/**
 	 * Plugin instance.
@@ -44,12 +45,20 @@ final class Plugin {
 	private ?Tracker $tracker = null;
 
 	/**
+	 * Update manager instance.
+	 *
+	 * @var UpdateManager|null
+	 */
+	private ?UpdateManager $update_manager = null;
+
+	/**
 	 * Get plugin instance.
 	 *
 	 * @return Plugin
 	 */
-	public static function get_instance(): Plugin {
-		if ( null === self::$instance ) {
+	public static function get_instance(): Plugin
+	{
+		if (null === self::$instance) {
 			self::$instance = new self();
 		}
 		return self::$instance;
@@ -58,7 +67,8 @@ final class Plugin {
 	/**
 	 * Constructor.
 	 */
-	private function __construct() {
+	private function __construct()
+	{
 		$this->table_manager = new TableManager();
 		$this->init();
 	}
@@ -68,15 +78,22 @@ final class Plugin {
 	 *
 	 * @return void
 	 */
-	private function init(): void {
+	private function init(): void
+	{
 		// Phase 2: Register tracking hooks.
 		$this->init_tracking();
 
 		// Phase 3: Register aggregation cron hook.
 		$this->init_aggregation();
 
-		// Phase 4: Initialize admin dashboard.
-		if ( is_admin() ) {
+		// Phase 4: Initialize admin dashboard, updates, and GitHub updater.
+		if (is_admin()) {
+			$this->update_manager = new UpdateManager($this->table_manager);
+			add_action('admin_init', array($this->update_manager, 'check_for_updates'));
+
+			// Check for remote updates from GitHub.
+			new GitHubUpdater();
+
 			$this->init_admin();
 		}
 	}
@@ -86,14 +103,15 @@ final class Plugin {
 	 *
 	 * @return void
 	 */
-	private function init_tracking(): void {
+	private function init_tracking(): void
+	{
 		// Only track on frontend.
-		if ( is_admin() ) {
+		if (is_admin()) {
 			return;
 		}
 
-		$anonymizer          = new Anonymizer();
-		$bot_detector        = new BotDetector();
+		$anonymizer = new Anonymizer();
+		$bot_detector = new BotDetector();
 		$referrer_normalizer = new ReferrerNormalizer();
 
 		$this->tracker = new Tracker(
@@ -104,7 +122,7 @@ final class Plugin {
 		);
 
 		// Hook to template_redirect for server-side tracking.
-		add_action( 'template_redirect', array( $this->tracker, 'track_hit' ) );
+		add_action('template_redirect', array($this->tracker, 'track_hit'));
 	}
 
 	/**
@@ -112,9 +130,10 @@ final class Plugin {
 	 *
 	 * @return void
 	 */
-	private function init_aggregation(): void {
+	private function init_aggregation(): void
+	{
 		// Register cron hook for aggregation.
-		add_action( 'privacy_analytics_lite_aggregate', array( $this, 'run_aggregation' ) );
+		add_action('privacy_analytics_lite_aggregate', array($this, 'run_aggregation'));
 	}
 
 	/**
@@ -122,8 +141,9 @@ final class Plugin {
 	 *
 	 * @return void
 	 */
-	public function run_aggregation(): void {
-		$aggregator = new Aggregator( $this->table_manager );
+	public function run_aggregation(): void
+	{
+		$aggregator = new Aggregator($this->table_manager);
 		$aggregator->aggregate_hits();
 	}
 
@@ -132,8 +152,9 @@ final class Plugin {
 	 *
 	 * @return void
 	 */
-	private function init_admin(): void {
-		$dashboard = new Dashboard( $this->table_manager, PRIVACY_ANALYTICS_LITE_VERSION );
+	private function init_admin(): void
+	{
+		$dashboard = new Dashboard($this->table_manager, PRIVACY_ANALYTICS_LITE_VERSION);
 		$dashboard->init();
 	}
 
@@ -142,13 +163,19 @@ final class Plugin {
 	 *
 	 * @return void
 	 */
-	public static function activate(): void {
+	public static function activate(): void
+	{
 		$table_manager = new TableManager();
 		$table_manager->create_tables();
 
+		// Record initial version to avoid unnecessary migrations on first install.
+		if (!get_option('privacy_analytics_lite_version')) {
+			update_option('privacy_analytics_lite_version', PRIVACY_ANALYTICS_LITE_VERSION);
+		}
+
 		// Schedule aggregation cron event.
-		if ( ! wp_next_scheduled( 'privacy_analytics_lite_aggregate' ) ) {
-			wp_schedule_event( time(), 'hourly', 'privacy_analytics_lite_aggregate' );
+		if (!wp_next_scheduled('privacy_analytics_lite_aggregate')) {
+			wp_schedule_event(time(), 'hourly', 'privacy_analytics_lite_aggregate');
 		}
 	}
 
@@ -157,9 +184,10 @@ final class Plugin {
 	 *
 	 * @return void
 	 */
-	public static function deactivate(): void {
+	public static function deactivate(): void
+	{
 		// Unschedule aggregation cron event.
-		wp_clear_scheduled_hook( 'privacy_analytics_lite_aggregate' );
+		wp_clear_scheduled_hook('privacy_analytics_lite_aggregate');
 
 		// Flush rewrite rules if needed.
 		flush_rewrite_rules();
@@ -170,7 +198,8 @@ final class Plugin {
 	 *
 	 * @return TableManager
 	 */
-	public function get_table_manager(): TableManager {
+	public function get_table_manager(): TableManager
+	{
 		return $this->table_manager;
 	}
 }

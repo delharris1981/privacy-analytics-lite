@@ -53,6 +53,29 @@
 
 		// Start polling for real-time updates (every 30 seconds).
 		setInterval(fetchStats, 30000);
+
+		// Check for update success flag.
+		if (document.body.classList.contains('pa-just-updated')) {
+			launchConfetti();
+		}
+
+		// Handle Modal Close
+		const modalClose = document.getElementById('pa-modal-close');
+		const modalOverlay = document.querySelector('.pa-modal-overlay');
+		if (modalClose && modalOverlay) {
+			modalClose.addEventListener('click', () => {
+				modalOverlay.classList.remove('is-active');
+			});
+		}
+
+		// Handle What's New button
+		const whatsNewBtn = document.getElementById('pa-whats-new-btn');
+		if (whatsNewBtn && modalOverlay) {
+			whatsNewBtn.addEventListener('click', (e) => {
+				e.preventDefault();
+				modalOverlay.classList.add('is-active');
+			});
+		}
 	}
 
 	/**
@@ -389,6 +412,27 @@
 			.replace(/>/g, "&gt;")
 			.replace(/"/g, "&quot;")
 			.replace(/'/g, "&#039;");
+	}
+
+	/**
+	 * Launch confetti celebration.
+	 */
+	function launchConfetti() {
+		const colors = ['#2271b1', '#00a32a', '#f0c33c', '#d63638', '#72aee6'];
+		for (let i = 0; i < 100; i++) {
+			const confetti = document.createElement('div');
+			confetti.className = 'pa-confetti';
+			confetti.style.left = Math.random() * 100 + 'vw';
+			confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+			confetti.style.width = Math.random() * 8 + 4 + 'px';
+			confetti.style.height = confetti.style.width;
+			confetti.style.animationDelay = Math.random() * 2 + 's';
+			confetti.style.animationDuration = Math.random() * 2 + 2 + 's';
+			document.body.appendChild(confetti);
+
+			// Clean up
+			setTimeout(() => confetti.remove(), 5000);
+		}
 	}
 
 	// Initialize when DOM is ready.
