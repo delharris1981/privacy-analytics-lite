@@ -1,3 +1,4 @@
+{
 	"name": "privacy-analytics-lite/privacy-analytics-lite",
 	"description": "Privacy-First Analytics Lite - Server-side tracking with aggregated data",
 	"type": "wordpress-plugin",
@@ -16,4 +17,3 @@
 		"sort-packages": true
 	}
 }
-
