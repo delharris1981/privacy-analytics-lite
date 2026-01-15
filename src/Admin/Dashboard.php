@@ -215,73 +215,75 @@ class Dashboard
 				</div>
 
 				<!-- Referrer Distribution Chart (Donut) -->
-				<div id="pa-referrer-donut-chart" class="pa-chart"
-					data-chart-data="<?php echo esc_attr(wp_json_encode($referrer_stats['chart_data'])); ?>"></div>
-			</div>
-		</div>
-
-		<!-- Device & OS Charts Grid -->
-		<div class="pa-charts-grid">
-			<!-- Device Type Chart -->
-			<div class="pa-chart-container">
-				<h2><?php echo esc_html__('Device Types', 'privacy-analytics-lite'); ?></h2>
-				<div id="pa-device-chart" class="pa-chart"
-					data-chart-data="<?php echo esc_attr(wp_json_encode($device_stats['chart_data'])); ?>"></div>
+				<div class="pa-chart-container">
+					<h2><?php echo esc_html__('Referrer Distribution', 'privacy-analytics-lite'); ?></h2>
+					<div id="pa-referrer-donut-chart" class="pa-chart"
+						data-chart-data="<?php echo esc_attr(wp_json_encode($referrer_stats['chart_data'])); ?>"></div>
+				</div>
 			</div>
 
-			<!-- OS Chart -->
-			<div class="pa-chart-container">
-				<h2><?php echo esc_html__('Operating Systems', 'privacy-analytics-lite'); ?></h2>
-				<div id="pa-os-chart" class="pa-chart"
-					data-chart-data="<?php echo esc_attr(wp_json_encode($os_stats['chart_data'])); ?>"></div>
-			</div>
-		</div>
+			<!-- Device & OS Charts Grid -->
+			<div class="pa-charts-grid">
+				<!-- Device Type Chart -->
+				<div class="pa-chart-container">
+					<h2><?php echo esc_html__('Device Types', 'privacy-analytics-lite'); ?></h2>
+					<div id="pa-device-chart" class="pa-chart"
+						data-chart-data="<?php echo esc_attr(wp_json_encode($device_stats['chart_data'])); ?>"></div>
+				</div>
 
-
-		<!-- Existing Charts Grid -->
-		<div class="pa-charts-grid">
-			<!-- Top Pages Chart -->
-			<div class="pa-chart-container">
-				<h2><?php echo esc_html__('Top Pages', 'privacy-analytics-lite'); ?></h2>
-				<div id="pa-top-pages-chart" class="pa-chart"
-					data-chart-data="<?php echo esc_attr(wp_json_encode($top_pages['chart_data'])); ?>"></div>
-			</div>
-
-			<!-- Referral Sources Chart -->
-			<div class="pa-chart-container">
-				<h2><?php echo esc_html__('Referral Sources', 'privacy-analytics-lite'); ?></h2>
-				<div id="pa-referrer-chart" class="pa-chart"
-					data-chart-data="<?php echo esc_attr(wp_json_encode($referrer_stats['chart_data'])); ?>"></div>
-			</div>
-		</div>
-
-		<!-- Tables -->
-		<div class="pa-tables-grid">
-			<!-- Top Pages Table -->
-			<div class="pa-table-container">
-				<h2><?php echo esc_html__('Top Pages', 'privacy-analytics-lite'); ?></h2>
-				<?php $this->render_top_pages_table($top_pages['table_data']); ?>
+				<!-- OS Chart -->
+				<div class="pa-chart-container">
+					<h2><?php echo esc_html__('Operating Systems', 'privacy-analytics-lite'); ?></h2>
+					<div id="pa-os-chart" class="pa-chart"
+						data-chart-data="<?php echo esc_attr(wp_json_encode($os_stats['chart_data'])); ?>"></div>
+				</div>
 			</div>
 
-			<!-- Referrer Sources Table -->
-			<div class="pa-table-container">
-				<h2><?php echo esc_html__('Referral Sources', 'privacy-analytics-lite'); ?></h2>
-				<?php $this->render_referrer_table($referrer_stats['table_data']); ?>
-			</div>
-		</div>
 
-		<!-- Device Tables -->
-		<div class="pa-tables-grid">
-			<div class="pa-table-container">
-				<h2><?php echo esc_html__('Device Types', 'privacy-analytics-lite'); ?></h2>
-				<?php $this->render_device_table($device_stats['table_data']); ?>
+			<!-- Existing Charts Grid -->
+			<div class="pa-charts-grid">
+				<!-- Top Pages Chart -->
+				<div class="pa-chart-container">
+					<h2><?php echo esc_html__('Top Pages', 'privacy-analytics-lite'); ?></h2>
+					<div id="pa-top-pages-chart" class="pa-chart"
+						data-chart-data="<?php echo esc_attr(wp_json_encode($top_pages['chart_data'])); ?>"></div>
+				</div>
+
+				<!-- Referral Sources Chart -->
+				<div class="pa-chart-container">
+					<h2><?php echo esc_html__('Referral Sources', 'privacy-analytics-lite'); ?></h2>
+					<div id="pa-referrer-chart" class="pa-chart"
+						data-chart-data="<?php echo esc_attr(wp_json_encode($referrer_stats['chart_data'])); ?>"></div>
+				</div>
 			</div>
 
-			<div class="pa-table-container">
-				<h2><?php echo esc_html__('Operating Systems', 'privacy-analytics-lite'); ?></h2>
-				<?php $this->render_os_table($os_stats['table_data']); ?>
+			<!-- Tables -->
+			<div class="pa-tables-grid">
+				<!-- Top Pages Table -->
+				<div class="pa-table-container">
+					<h2><?php echo esc_html__('Top Pages', 'privacy-analytics-lite'); ?></h2>
+					<?php $this->render_top_pages_table($top_pages['table_data']); ?>
+				</div>
+
+				<!-- Referrer Sources Table -->
+				<div class="pa-table-container">
+					<h2><?php echo esc_html__('Referral Sources', 'privacy-analytics-lite'); ?></h2>
+					<?php $this->render_referrer_table($referrer_stats['table_data']); ?>
+				</div>
 			</div>
-		</div>
+
+			<!-- Device Tables -->
+			<div class="pa-tables-grid">
+				<div class="pa-table-container">
+					<h2><?php echo esc_html__('Device Types', 'privacy-analytics-lite'); ?></h2>
+					<?php $this->render_device_table($device_stats['table_data']); ?>
+				</div>
+
+				<div class="pa-table-container">
+					<h2><?php echo esc_html__('Operating Systems', 'privacy-analytics-lite'); ?></h2>
+					<?php $this->render_os_table($os_stats['table_data']); ?>
+				</div>
+			</div>
 		</div>
 		<?php
 	}
