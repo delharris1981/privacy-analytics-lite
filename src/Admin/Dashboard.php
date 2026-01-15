@@ -139,6 +139,8 @@ class Dashboard
 		$hourly_stats = $this->get_hourly_stats();
 		$top_pages = $this->get_top_pages($start_date, $end_date);
 		$referrer_stats = $this->get_referrer_stats($start_date, $end_date);
+		$device_stats = $this->get_device_stats($start_date, $end_date);
+		$os_stats = $this->get_os_stats($start_date, $end_date);
 
 		// Check for update transient and set a flag for JS.
 		$is_updated = (bool) get_transient('pa_lite_updated');
@@ -213,45 +215,73 @@ class Dashboard
 				</div>
 
 				<!-- Referrer Distribution Chart (Donut) -->
-				<div class="pa-chart-container">
-					<h2><?php echo esc_html__('Referrer Distribution', 'privacy-analytics-lite'); ?></h2>
-					<div id="pa-referrer-donut-chart" class="pa-chart"
-						data-chart-data="<?php echo esc_attr(wp_json_encode($referrer_stats['chart_data'])); ?>"></div>
-				</div>
+				<div id="pa-referrer-donut-chart" class="pa-chart"
+					data-chart-data="<?php echo esc_attr(wp_json_encode($referrer_stats['chart_data'])); ?>"></div>
+			</div>
+		</div>
+
+		<!-- Device & OS Charts Grid -->
+		<div class="pa-charts-grid">
+			<!-- Device Type Chart -->
+			<div class="pa-chart-container">
+				<h2><?php echo esc_html__('Device Types', 'privacy-analytics-lite'); ?></h2>
+				<div id="pa-device-chart" class="pa-chart"
+					data-chart-data="<?php echo esc_attr(wp_json_encode($device_stats['chart_data'])); ?>"></div>
 			</div>
 
+			<!-- OS Chart -->
+			<div class="pa-chart-container">
+				<h2><?php echo esc_html__('Operating Systems', 'privacy-analytics-lite'); ?></h2>
+				<div id="pa-os-chart" class="pa-chart"
+					data-chart-data="<?php echo esc_attr(wp_json_encode($os_stats['chart_data'])); ?>"></div>
+			</div>
+		</div>
 
-			<!-- Existing Charts Grid -->
-			<div class="pa-charts-grid">
-				<!-- Top Pages Chart -->
-				<div class="pa-chart-container">
-					<h2><?php echo esc_html__('Top Pages', 'privacy-analytics-lite'); ?></h2>
-					<div id="pa-top-pages-chart" class="pa-chart"
-						data-chart-data="<?php echo esc_attr(wp_json_encode($top_pages['chart_data'])); ?>"></div>
-				</div>
 
-				<!-- Referral Sources Chart -->
-				<div class="pa-chart-container">
-					<h2><?php echo esc_html__('Referral Sources', 'privacy-analytics-lite'); ?></h2>
-					<div id="pa-referrer-chart" class="pa-chart"
-						data-chart-data="<?php echo esc_attr(wp_json_encode($referrer_stats['chart_data'])); ?>"></div>
-				</div>
+		<!-- Existing Charts Grid -->
+		<div class="pa-charts-grid">
+			<!-- Top Pages Chart -->
+			<div class="pa-chart-container">
+				<h2><?php echo esc_html__('Top Pages', 'privacy-analytics-lite'); ?></h2>
+				<div id="pa-top-pages-chart" class="pa-chart"
+					data-chart-data="<?php echo esc_attr(wp_json_encode($top_pages['chart_data'])); ?>"></div>
 			</div>
 
-			<!-- Tables -->
-			<div class="pa-tables-grid">
-				<!-- Top Pages Table -->
-				<div class="pa-table-container">
-					<h2><?php echo esc_html__('Top Pages', 'privacy-analytics-lite'); ?></h2>
-					<?php $this->render_top_pages_table($top_pages['table_data']); ?>
-				</div>
-
-				<!-- Referrer Sources Table -->
-				<div class="pa-table-container">
-					<h2><?php echo esc_html__('Referral Sources', 'privacy-analytics-lite'); ?></h2>
-					<?php $this->render_referrer_table($referrer_stats['table_data']); ?>
-				</div>
+			<!-- Referral Sources Chart -->
+			<div class="pa-chart-container">
+				<h2><?php echo esc_html__('Referral Sources', 'privacy-analytics-lite'); ?></h2>
+				<div id="pa-referrer-chart" class="pa-chart"
+					data-chart-data="<?php echo esc_attr(wp_json_encode($referrer_stats['chart_data'])); ?>"></div>
 			</div>
+		</div>
+
+		<!-- Tables -->
+		<div class="pa-tables-grid">
+			<!-- Top Pages Table -->
+			<div class="pa-table-container">
+				<h2><?php echo esc_html__('Top Pages', 'privacy-analytics-lite'); ?></h2>
+				<?php $this->render_top_pages_table($top_pages['table_data']); ?>
+			</div>
+
+			<!-- Referrer Sources Table -->
+			<div class="pa-table-container">
+				<h2><?php echo esc_html__('Referral Sources', 'privacy-analytics-lite'); ?></h2>
+				<?php $this->render_referrer_table($referrer_stats['table_data']); ?>
+			</div>
+		</div>
+
+		<!-- Device Tables -->
+		<div class="pa-tables-grid">
+			<div class="pa-table-container">
+				<h2><?php echo esc_html__('Device Types', 'privacy-analytics-lite'); ?></h2>
+				<?php $this->render_device_table($device_stats['table_data']); ?>
+			</div>
+
+			<div class="pa-table-container">
+				<h2><?php echo esc_html__('Operating Systems', 'privacy-analytics-lite'); ?></h2>
+				<?php $this->render_os_table($os_stats['table_data']); ?>
+			</div>
+		</div>
 		</div>
 		<?php
 	}
@@ -284,6 +314,8 @@ class Dashboard
 		$hourly_stats = $this->get_hourly_stats();
 		$top_pages = $this->get_top_pages($date_start, $date_end);
 		$referrer_stats = $this->get_referrer_stats($date_start, $date_end);
+		$device_stats = $this->get_device_stats($date_start, $date_end);
+		$os_stats = $this->get_os_stats($date_start, $date_end);
 
 		wp_send_json_success(array(
 			'summary_stats' => $summary_stats,
@@ -291,6 +323,8 @@ class Dashboard
 			'hourly_stats' => $hourly_stats,
 			'top_pages' => $top_pages,
 			'referrer_stats' => $referrer_stats,
+			'device_stats' => $device_stats,
+			'os_stats' => $os_stats,
 		));
 	}
 
@@ -918,6 +952,250 @@ class Dashboard
 		}
 
 		return false;
+	}
+
+	/**
+	 * Get device statistics.
+	 *
+	 * @param string $start_date Start date (Y-m-d).
+	 * @param string $end_date   End date (Y-m-d).
+	 * @return array<string, array<int, array<string, mixed>>> Device stats data.
+	 */
+	private function get_device_stats(string $start_date, string $end_date): array
+	{
+		global $wpdb;
+
+		$stats_table = $this->table_manager->get_stats_table_name();
+		$hits_table = $this->table_manager->get_hits_table_name();
+
+		// Aggregated.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+		$aggregated = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT 
+					device_type,
+					SUM(hit_count) as total_hits,
+					SUM(unique_visitors) as total_visitors
+				FROM {$stats_table}
+				WHERE stat_date BETWEEN %s AND %s
+				GROUP BY device_type",
+				$start_date,
+				$end_date
+			),
+			ARRAY_A
+		);
+
+		// Raw.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+		$raw = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT 
+					device_type,
+					COUNT(*) as total_hits,
+					COUNT(DISTINCT visitor_hash) as total_visitors
+				FROM {$hits_table}
+				WHERE hit_date BETWEEN %s AND %s
+				GROUP BY device_type",
+				$start_date . ' 00:00:00',
+				$end_date . ' 23:59:59'
+			),
+			ARRAY_A
+		);
+
+		$merged = array();
+		// Initial merge logic same as others...
+		// Simplified for brevity in this response, utilizing the same pattern:
+		if (is_array($aggregated)) {
+			foreach ($aggregated as $row) {
+				$key = $row['device_type'] ?: 'Unknown';
+				$merged[$key] = array(
+					'hits' => absint($row['total_hits'] ?? 0),
+					'visitors' => absint($row['total_visitors'] ?? 0),
+				);
+			}
+		}
+
+		if (is_array($raw)) {
+			foreach ($raw as $row) {
+				$key = $row['device_type'] ?: 'Unknown';
+				if (!isset($merged[$key])) {
+					$merged[$key] = array('hits' => 0, 'visitors' => 0);
+				}
+				$merged[$key]['hits'] += absint($row['total_hits'] ?? 0);
+				$merged[$key]['visitors'] += absint($row['total_visitors'] ?? 0);
+			}
+		}
+
+		uasort($merged, function ($a, $b) {
+			return $b['hits'] <=> $a['hits'];
+		});
+
+		$labels = array();
+		$values = array();
+		$table_data = array();
+
+		foreach ($merged as $type => $data) {
+			$labels[] = $type;
+			$values[] = $data['hits'];
+			$table_data[] = array('type' => $type, 'hits' => $data['hits'], 'visitors' => $data['visitors']);
+		}
+
+		return array(
+			'chart_data' => array('labels' => $labels, 'datasets' => array(array('name' => 'Hits', 'values' => $values))),
+			'table_data' => $table_data,
+		);
+	}
+
+	/**
+	 * Get OS statistics.
+	 *
+	 * @param string $start_date Start date (Y-m-d).
+	 * @param string $end_date   End date (Y-m-d).
+	 * @return array<string, array<int, array<string, mixed>>> OS stats data.
+	 */
+	private function get_os_stats(string $start_date, string $end_date): array
+	{
+		global $wpdb;
+
+		$stats_table = $this->table_manager->get_stats_table_name();
+		$hits_table = $this->table_manager->get_hits_table_name();
+
+		// Aggregated.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+		$aggregated = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT 
+					os,
+					SUM(hit_count) as total_hits,
+					SUM(unique_visitors) as total_visitors
+				FROM {$stats_table}
+				WHERE stat_date BETWEEN %s AND %s
+				GROUP BY os",
+				$start_date,
+				$end_date
+			),
+			ARRAY_A
+		);
+
+		// Raw.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+		$raw = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT 
+					os,
+					COUNT(*) as total_hits,
+					COUNT(DISTINCT visitor_hash) as total_visitors
+				FROM {$hits_table}
+				WHERE hit_date BETWEEN %s AND %s
+				GROUP BY os",
+				$start_date . ' 00:00:00',
+				$end_date . ' 23:59:59'
+			),
+			ARRAY_A
+		);
+
+		$merged = array();
+		if (is_array($aggregated)) {
+			foreach ($aggregated as $row) {
+				$key = $row['os'] ?: 'Unknown';
+				$merged[$key] = array(
+					'hits' => absint($row['total_hits'] ?? 0),
+					'visitors' => absint($row['total_visitors'] ?? 0),
+				);
+			}
+		}
+
+		if (is_array($raw)) {
+			foreach ($raw as $row) {
+				$key = $row['os'] ?: 'Unknown';
+				if (!isset($merged[$key])) {
+					$merged[$key] = array('hits' => 0, 'visitors' => 0);
+				}
+				$merged[$key]['hits'] += absint($row['total_hits'] ?? 0);
+				$merged[$key]['visitors'] += absint($row['total_visitors'] ?? 0);
+			}
+		}
+
+		uasort($merged, function ($a, $b) {
+			return $b['hits'] <=> $a['hits'];
+		});
+
+		$labels = array();
+		$values = array();
+		$table_data = array();
+
+		foreach ($merged as $os => $data) {
+			$labels[] = $os;
+			$values[] = $data['hits'];
+			$table_data[] = array('os' => $os, 'hits' => $data['hits'], 'visitors' => $data['visitors']);
+		}
+
+		return array(
+			'chart_data' => array('labels' => $labels, 'datasets' => array(array('name' => 'Hits', 'values' => $values))),
+			'table_data' => $table_data,
+		);
+	}
+
+	/**
+	 * Render device table.
+	 */
+	private function render_device_table(array $data): void
+	{
+		if (empty($data)) {
+			echo '<p>' . esc_html__('No data available.', 'privacy-analytics-lite') . '</p>';
+			return;
+		}
+		?>
+		<table class="wp-list-table widefat fixed striped">
+			<thead>
+				<tr>
+					<th><?php echo esc_html__('Device Type', 'privacy-analytics-lite'); ?></th>
+					<th><?php echo esc_html__('Hits', 'privacy-analytics-lite'); ?></th>
+					<th><?php echo esc_html__('Visitors', 'privacy-analytics-lite'); ?></th>
+				</tr>
+			</thead>
+			<tbody>
+				<?php foreach ($data as $row): ?>
+					<tr>
+						<td><?php echo esc_html($row['type']); ?></td>
+						<td><?php echo esc_html(number_format_i18n($row['hits'])); ?></td>
+						<td><?php echo esc_html(number_format_i18n($row['visitors'])); ?></td>
+					</tr>
+				<?php endforeach; ?>
+			</tbody>
+		</table>
+		<?php
+	}
+
+	/**
+	 * Render OS table.
+	 */
+	private function render_os_table(array $data): void
+	{
+		if (empty($data)) {
+			echo '<p>' . esc_html__('No data available.', 'privacy-analytics-lite') . '</p>';
+			return;
+		}
+		?>
+		<table class="wp-list-table widefat fixed striped">
+			<thead>
+				<tr>
+					<th><?php echo esc_html__('Operating System', 'privacy-analytics-lite'); ?></th>
+					<th><?php echo esc_html__('Hits', 'privacy-analytics-lite'); ?></th>
+					<th><?php echo esc_html__('Visitors', 'privacy-analytics-lite'); ?></th>
+				</tr>
+			</thead>
+			<tbody>
+				<?php foreach ($data as $row): ?>
+					<tr>
+						<td><?php echo esc_html($row['os']); ?></td>
+						<td><?php echo esc_html(number_format_i18n($row['hits'])); ?></td>
+						<td><?php echo esc_html(number_format_i18n($row['visitors'])); ?></td>
+					</tr>
+				<?php endforeach; ?>
+			</tbody>
+		</table>
+		<?php
 	}
 }
 

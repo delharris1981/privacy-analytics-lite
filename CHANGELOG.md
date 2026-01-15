@@ -5,6 +5,11 @@ All notable changes to Privacy-First Analytics Lite will be documented in this f
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.0] - 2026-01-15
+### Added
+- **Device Analytics**: Visualize visitor device types (Mobile, Tablet, Desktop) and Operating Systems (iOS, Android, Windows, etc.) in the dashboard.
+- **Privacy Compliance**: All device data is aggregated and anonymized. No raw User Agents are stored.
+
 ## [1.3.2] - 2025-12-26
 
 ### Fixed

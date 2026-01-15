@@ -24,7 +24,8 @@ A privacy-compliant, server-side analytics plugin for WordPress that tracks page
 - **Visual Analytics**: Interactive charts powered by Frappe Charts
 - **Date Filtering**: View statistics by Last 7, 30, 90 days, or custom date ranges
 - **Key Metrics**: Total hits, unique visitors, top pages, and referral sources
-- **Detailed Charts**: Hourly traffic (last 24h), daily trends, and referrer distribution
+- **Device Analytics**: Breakdown by device type (Mobile, Tablet, Desktop) and OS
+- **Detailed Charts**: Hourly traffic, daily trends, device distribution, and more
 - **Easy to Use**: Clean, intuitive admin interface
 
 ## Requirements
@@ -84,6 +85,7 @@ composer require privacy-analytics-lite/privacy-analytics-lite
 ### What We Track
 - Page paths (e.g., `/about`, `/contact`)
 - Referral sources (normalized, e.g., "Google", "Twitter")
+- Device types and Operating Systems (aggregated)
 - Hit counts and unique visitor counts (anonymized)
 
 ### What We Don't Track

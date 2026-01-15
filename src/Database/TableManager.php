@@ -36,6 +36,8 @@ class TableManager
 			page_path varchar(255) NOT NULL,
 			referrer varchar(255) DEFAULT NULL,
 			user_agent_hash varchar(64) NOT NULL,
+			device_type varchar(20) NOT NULL DEFAULT 'Desktop',
+			os varchar(20) NOT NULL DEFAULT 'Other',
 			hit_date datetime NOT NULL,
 			PRIMARY KEY  (id),
 			KEY hit_date (hit_date),
@@ -53,6 +55,8 @@ class TableManager
 			referrer varchar(255) DEFAULT NULL,
 			hit_count int(11) unsigned NOT NULL DEFAULT 0,
 			unique_visitors int(11) unsigned NOT NULL DEFAULT 0,
+			device_type varchar(20) NOT NULL DEFAULT 'Desktop',
+			os varchar(20) NOT NULL DEFAULT 'Other',
 			PRIMARY KEY  (id),
 			KEY stat_date (stat_date),
 			KEY page_path (page_path)

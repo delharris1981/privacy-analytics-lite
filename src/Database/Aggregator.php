@@ -75,7 +75,7 @@ class Aggregator
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$results = $wpdb->get_results(
-			"SELECT visitor_hash, page_path, referrer, hit_date FROM {$hits_table}",
+			"SELECT visitor_hash, page_path, referrer, device_type, os, hit_date FROM {$hits_table}",
 			ARRAY_A
 		);
 
@@ -111,15 +111,19 @@ class Aggregator
 
 			$page_path = $hit['page_path'] ?? '';
 			$referrer = $hit['referrer'] ?? null;
+			$device_type = $hit['device_type'] ?? 'Desktop';
+			$os = $hit['os'] ?? 'Other';
 
 			// Create group key.
-			$key = $this->get_group_key($stat_date, $page_path, $referrer);
+			$key = $this->get_group_key($stat_date, $page_path, $referrer, $device_type, $os);
 
 			if (!isset($grouped[$key])) {
 				$grouped[$key] = array(
 					'stat_date' => $stat_date,
 					'page_path' => $page_path,
 					'referrer' => $referrer,
+					'device_type' => $device_type,
+					'os' => $os,
 					'hit_count' => 0,
 					'unique_visitors' => array(),
 				);
@@ -142,6 +146,8 @@ class Aggregator
 				'stat_date' => $group['stat_date'],
 				'page_path' => $group['page_path'],
 				'referrer' => $group['referrer'],
+				'device_type' => $group['device_type'],
+				'os' => $group['os'],
 				'hit_count' => $group['hit_count'],
 				'unique_visitors' => count($group['unique_visitors']),
 			);
@@ -156,12 +162,14 @@ class Aggregator
 	 * @param string      $stat_date Date in YYYY-MM-DD format.
 	 * @param string      $page_path Page path.
 	 * @param string|null $referrer  Referrer or null.
+	 * @param string      $device_type Device type.
+	 * @param string      $os          Operating System.
 	 * @return string Group key.
 	 */
-	private function get_group_key(string $stat_date, string $page_path, ?string $referrer): string
+	private function get_group_key(string $stat_date, string $page_path, ?string $referrer, string $device_type, string $os): string
 	{
 		$referrer_key = $referrer ?? 'direct';
-		return hash('sha256', $stat_date . '|' . $page_path . '|' . $referrer_key);
+		return hash('sha256', $stat_date . '|' . $page_path . '|' . $referrer_key . '|' . $device_type . '|' . $os);
 	}
 
 	/**
@@ -181,6 +189,8 @@ class Aggregator
 			$stat_date = $stat['stat_date'] ?? '';
 			$page_path = $stat['page_path'] ?? '';
 			$referrer = $stat['referrer'] ?? null;
+			$device_type = $stat['device_type'] ?? 'Desktop';
+			$os = $stat['os'] ?? 'Other';
 			$hit_count = absint($stat['hit_count'] ?? 0);
 			$unique_visitors = absint($stat['unique_visitors'] ?? 0);
 
@@ -188,11 +198,13 @@ class Aggregator
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 			$existing = $wpdb->get_var(
 				$wpdb->prepare(
-					"SELECT id FROM {$stats_table} WHERE stat_date = %s AND page_path = %s AND (referrer = %s OR (referrer IS NULL AND %s IS NULL))",
+					"SELECT id FROM {$stats_table} WHERE stat_date = %s AND page_path = %s AND (referrer = %s OR (referrer IS NULL AND %s IS NULL)) AND device_type = %s AND os = %s",
 					$stat_date,
 					$page_path,
 					$referrer,
-					$referrer
+					$referrer,
+					$device_type,
+					$os
 				)
 			);
 
@@ -221,10 +233,12 @@ class Aggregator
 						'stat_date' => $stat_date,
 						'page_path' => $page_path,
 						'referrer' => $referrer,
+						'device_type' => $device_type,
+						'os' => $os,
 						'hit_count' => $hit_count,
 						'unique_visitors' => $unique_visitors,
 					),
-					array('%s', '%s', '%s', '%d', '%d')
+					array('%s', '%s', '%s', '%s', '%s', '%d', '%d')
 				);
 
 				if (false === $result) {

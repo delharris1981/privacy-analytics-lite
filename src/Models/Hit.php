@@ -44,6 +44,20 @@ readonly class Hit
 	public string $user_agent_hash;
 
 	/**
+	 * Device type (Mobile, Tablet, Desktop).
+	 *
+	 * @var string
+	 */
+	public string $device_type;
+
+	/**
+	 * Operating System.
+	 *
+	 * @var string
+	 */
+	public string $os;
+
+	/**
 	 * Hit timestamp.
 	 *
 	 * @var string
@@ -57,6 +71,8 @@ readonly class Hit
 	 * @param string      $page_path      Page path.
 	 * @param string|null $referrer       Referrer or null.
 	 * @param string      $user_agent_hash Hashed user agent.
+	 * @param string      $device_type    Device type.
+	 * @param string      $os             Operating System.
 	 * @param string      $hit_date       Hit timestamp.
 	 */
 	public function __construct(
@@ -64,12 +80,16 @@ readonly class Hit
 		string $page_path,
 		?string $referrer,
 		string $user_agent_hash,
+		string $device_type,
+		string $os,
 		string $hit_date
 	) {
 		$this->visitor_hash = $visitor_hash;
 		$this->page_path = $page_path;
 		$this->referrer = $referrer;
 		$this->user_agent_hash = $user_agent_hash;
+		$this->device_type = $device_type;
+		$this->os = $os;
 		$this->hit_date = $hit_date;
 	}
 }
