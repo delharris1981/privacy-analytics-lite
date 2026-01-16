@@ -5,6 +5,12 @@ All notable changes to Privacy-First Analytics Lite will be documented in this f
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.1] - 2026-01-16
+### Fixed
+- **Fatal Error**: Resolved `Uncaught TypeError` in `Tracker` instantiation where `DeviceDetector` was missing.
+- **Dashboard Layout**: Fixed broken grid layout in admin dashboard caused by missing container div.
+- **Build**: Fixed syntax error in `composer.json` and added missing GitHub Action permissions.
+
 ## [1.4.0] - 2026-01-15
 ### Added
 - **Device Analytics**: Visualize visitor device types (Mobile, Tablet, Desktop) and Operating Systems (iOS, Android, Windows, etc.) in the dashboard.

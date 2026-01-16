@@ -2,7 +2,7 @@
 	"name": "privacy-analytics-lite/privacy-analytics-lite",
 	"description": "Privacy-First Analytics Lite - Server-side tracking with aggregated data",
 	"type": "wordpress-plugin",
-	"version": "1.4.0",
+	"version": "1.4.1",
 	"license": "GPL-2.0-or-later",
 	"require": {
 		"php": ">=8.2"
