@@ -153,6 +153,33 @@ final class Plugin
 		$heatmap_tracker = new HeatmapTracker($this->table_manager);
 		add_action('wp_ajax_pa_track_heatmap', array($heatmap_tracker, 'track_click'));
 		add_action('wp_ajax_nopriv_pa_track_heatmap', array($heatmap_tracker, 'track_click'));
+		add_action('wp_ajax_pa_get_heatmap_data', array($heatmap_tracker, 'handle_ajax_get_heatmap_data'));
+
+		// Register Heatmap Viewer script (enqueue only when needed).
+		add_action('wp_enqueue_scripts', function () {
+			if (isset($_GET['pa_heatmap']) && $_GET['pa_heatmap'] === 'true' && current_user_can('manage_options')) {
+				wp_enqueue_style(
+					'pa-heatmap-viewer',
+					PRIVACY_ANALYTICS_LITE_PLUGIN_URL . 'assets/css/heatmap-viewer.css',
+					array(),
+					PRIVACY_ANALYTICS_LITE_VERSION
+				);
+
+				wp_enqueue_script(
+					'pa-heatmap-viewer',
+					PRIVACY_ANALYTICS_LITE_PLUGIN_URL . 'assets/js/heatmap-viewer.js',
+					array(),
+					PRIVACY_ANALYTICS_LITE_VERSION,
+					true
+				);
+
+				wp_localize_script('pa-heatmap-viewer', 'pa_heatmap_data', array(
+					'ajax_url' => admin_url('admin-ajax.php'),
+					'nonce' => wp_create_nonce('pa_heatmap_nonce'),
+					'page_path' => parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH),
+				));
+			}
+		});
 	}
 
 	/**

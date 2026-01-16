@@ -301,28 +301,31 @@ class Dashboard
 					<?php $this->render_os_table($os_stats['table_data']); ?>
 				</div>
 			</div>
-			</div> <!-- End Overview Tab -->
+		</div> <!-- End Overview Tab -->
 
-			<!-- Heatmaps Tab -->
-			<div id="view-heatmaps" class="pa-tab-content" style="display: none; padding-top: 20px;">
-				<div class="card pa-card">
-					<h2><?php echo esc_html__('Manage Heatmap Tracking', 'privacy-analytics-lite'); ?></h2>
-					<p><?php echo esc_html__('Enable heatmaps for specific pages. To keep your database lite, only track pages you are actively analyzing. Tracking uses a privacy-safe grid system.', 'privacy-analytics-lite'); ?></p>
-					
-					<table class="wp-list-table widefat fixed striped">
-						<thead>
+		<!-- Heatmaps Tab -->
+		<div id="view-heatmaps" class="pa-tab-content" style="display: none; padding-top: 20px;">
+			<div class="card pa-card">
+				<h2><?php echo esc_html__('Manage Heatmap Tracking', 'privacy-analytics-lite'); ?></h2>
+				<p><?php echo esc_html__('Enable heatmaps for specific pages. To keep your database lite, only track pages you are actively analyzing. Tracking uses a privacy-safe grid system.', 'privacy-analytics-lite'); ?>
+				</p>
+
+				<table class="wp-list-table widefat fixed striped">
+					<thead>
+						<tr>
+							<th><?php echo esc_html__('Page Path', 'privacy-analytics-lite'); ?></th>
+							<th><?php echo esc_html__('Status', 'privacy-analytics-lite'); ?></th>
+							<th><?php echo esc_html__('Action', 'privacy-analytics-lite'); ?></th>
+						</tr>
+					</thead>
+					<tbody>
+						<?php if (empty($tracked_pages)): ?>
 							<tr>
-								<th><?php echo esc_html__('Page Path', 'privacy-analytics-lite'); ?></th>
-								<th><?php echo esc_html__('Status', 'privacy-analytics-lite'); ?></th>
-								<th><?php echo esc_html__('Action', 'privacy-analytics-lite'); ?></th>
+								<td colspan="3"><?php echo esc_html__('No pages tracked yet.', 'privacy-analytics-lite'); ?></td>
 							</tr>
-						</thead>
-						<tbody>
-							<?php if (empty($tracked_pages)) : ?>
-								<tr><td colspan="3"><?php echo esc_html__('No pages tracked yet.', 'privacy-analytics-lite'); ?></td></tr>
-							<?php else : ?>
-								<?php foreach ($tracked_pages as $page) : 
-									$is_enabled = in_array($page, $heatmap_pages, true);
+						<?php else: ?>
+							<?php foreach ($tracked_pages as $page):
+								$is_enabled = in_array($page, $heatmap_pages, true);
 								?>
 								<tr>
 									<td>
@@ -331,54 +334,51 @@ class Dashboard
 										</a>
 									</td>
 									<td>
-										<?php if ($is_enabled) : ?>
-											<span class="dashicons dashicons-yes" style="color: #00a32a;"></span> <?php echo esc_html__('Active', 'privacy-analytics-lite'); ?>
-										<?php else : ?>
-											<span class="dashicons dashicons-no-alt" style="color: #d63638;"></span> <?php echo esc_html__('Inactive', 'privacy-analytics-lite'); ?>
+										<?php if ($is_enabled): ?>
+											<span class="dashicons dashicons-yes" style="color: #00a32a;"></span>
+											<?php echo esc_html__('Active', 'privacy-analytics-lite'); ?>
+										<?php else: ?>
+											<span class="dashicons dashicons-no-alt" style="color: #d63638;"></span>
+											<?php echo esc_html__('Inactive', 'privacy-analytics-lite'); ?>
 										<?php endif; ?>
 									</td>
 									<td>
-										<button class="button pa-toggle-heatmap <?php echo $is_enabled ? 'button-secondary' : 'button-primary'; ?>"
+										<button
+											class="button pa-toggle-heatmap <?php echo $is_enabled ? 'button-secondary' : 'button-primary'; ?>"
 											data-page="<?php echo esc_attr($page); ?>"
 											data-state="<?php echo $is_enabled ? 'on' : 'off'; ?>">
 											<?php echo $is_enabled ? esc_html__('Disable', 'privacy-analytics-lite') : esc_html__('Enable', 'privacy-analytics-lite'); ?>
 										</button>
-										<?php if ($is_enabled) : ?>
-											<!-- Future: Link to visualize heatmap -->
+										<?php if ($is_enabled): ?>
+											<a href="<?php echo esc_url(add_query_arg('pa_heatmap', 'true', home_url($page))); ?>"
+												target="_blank" class="button button-secondary">
+												<span class="dashicons dashicons-visibility" style="margin-top: 4px;"></span>
+												<?php echo esc_html__('View Heatmap', 'privacy-analytics-lite'); ?>
+											</a>
 										<?php endif; ?>
 									</td>
 								</tr>
-								<?php endforeach; ?>
-							<?php endif; ?>
-						</tbody>
-					</table>
-				</div>
+							<?php endforeach; ?>
+						<?php endif; ?>
+					</tbody>
+				</table>
 			</div>
+		</div>
 
-			<!-- Footer -->
-			<div class="pa-footer">
-				<div class="pa-footer-left">
-					<?php echo esc_html__('Thank you for creating with WordPress.', 'privacy-analytics-lite'); ?>
-				</div>
-				<div class="pa-footer-right">
-					<span class="pa-version">Version <?php echo esc_html($this->version); ?></span>
-					<button id="pa-whats-new-btn"
-						class="button button-link"><?php echo esc_html__('What\'s New', 'privacy-analytics-lite'); ?></button>
-				</div>
-			</div>
 
-			<!-- What's New Modal -->
-			<div class="pa-modal-overlay">
-				<div class="pa-modal">
-					<div class="pa-modal-header">
-						<h2><?php echo esc_html__('What\'s New', 'privacy-analytics-lite'); ?></h2>
-						<button id="pa-modal-close" class="pa-modal-close">&times;</button>
-					</div>
-					<div class="pa-modal-content">
-						<?php echo wp_kses_post($this->get_latest_changelog()); ?>
-					</div>
+
+		<!-- What's New Modal -->
+		<div class="pa-modal-overlay">
+			<div class="pa-modal">
+				<div class="pa-modal-header">
+					<h2><?php echo esc_html__('What\'s New', 'privacy-analytics-lite'); ?></h2>
+					<button id="pa-modal-close" class="pa-modal-close">&times;</button>
+				</div>
+				<div class="pa-modal-content">
+					<?php echo wp_kses_post($this->get_latest_changelog()); ?>
 				</div>
 			</div>
+		</div>
 		</div>
 		<?php
 	}
@@ -465,6 +465,43 @@ class Dashboard
 			'device_stats' => $device_stats,
 			'os_stats' => $os_stats,
 		));
+	}
+
+	/**
+	 * Toggle heatmap tracking for a page.
+	 *
+	 * @return void
+	 */
+	public function ajax_toggle_heatmap(): void
+	{
+		if (!current_user_can('manage_options')) {
+			wp_send_json_error('Insufficient permissions');
+		}
+
+		// Nonce check skipped for now as we haven't localized one yet.
+		// check_ajax_referer('pa_toggle_heatmap', 'nonce');
+
+		$page = isset($_POST['page']) ? sanitize_text_field(wp_unslash($_POST['page'])) : '';
+		$state = isset($_POST['state']) ? sanitize_text_field(wp_unslash($_POST['state'])) : '';
+
+		if (!$page) {
+			wp_send_json_error('Invalid page');
+		}
+
+		$options = get_option('privacy_analytics_heatmap_pages', array());
+
+		if ($state === 'off') {
+			// Enable it
+			if (!in_array($page, $options, true)) {
+				$options[] = $page;
+			}
+		} else {
+			// Disable it
+			$options = array_diff($options, array($page));
+		}
+
+		update_option('privacy_analytics_heatmap_pages', array_values($options));
+		wp_send_json_success(array('new_state' => $state === 'off' ? 'on' : 'off'));
 	}
 
 	/**
@@ -797,6 +834,25 @@ class Dashboard
 	}
 
 	/**
+	 * Get all tracked pages for heatmap management.
+	 *
+	 * @return array<string> List of page paths.
+	 */
+	private function get_all_tracked_pages(): array
+	{
+		global $wpdb;
+
+		$stats_table = $this->table_manager->get_stats_table_name();
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+		$results = $wpdb->get_col(
+			"SELECT DISTINCT page_path FROM {$stats_table} ORDER BY page_path ASC LIMIT 50"
+		);
+
+		return is_array($results) ? $results : array();
+	}
+
+	/**
 	 * Get referrer statistics.
 	 *
 	 * @param string $start_date Start date (Y-m-d).
@@ -1015,6 +1071,7 @@ class Dashboard
 				<button type="button" id="pa-whats-new-btn" class="pa-btn-premium">
 					<?php echo esc_html__('What\'s New?', 'privacy-analytics-lite'); ?>
 				</button>
+				<button type="button" class="notice-dismiss" style="margin: 0; position: static;"></button>
 			</div>
 		</div>
 

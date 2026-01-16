@@ -76,6 +76,20 @@
 			});
 		}
 
+		// Handle Notice Dismiss
+		const dismissBtn = document.querySelector('.pa-premium-notice .notice-dismiss');
+		if (dismissBtn) {
+			dismissBtn.addEventListener('click', function () {
+				const notice = this.closest('.pa-premium-notice');
+				if (notice) {
+					notice.style.display = 'none';
+					// Use standard WP AJAX to dismiss if we wanted persistence, 
+					// but for now local transient handling in PHP handles strict "one-time" show.
+					// We can just hide it here.
+				}
+			});
+		}
+
 		// Handle What's New button
 		const whatsNewBtn = document.getElementById('pa-whats-new-btn');
 		if (whatsNewBtn && modalOverlay) {

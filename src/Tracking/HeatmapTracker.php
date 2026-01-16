@@ -87,4 +87,70 @@ class HeatmapTracker
 
         wp_send_json_success();
     }
+
+    /**
+     * Get heatmap data for a specific page and viewport.
+     *
+     * @param string $page_path Page path.
+     * @param string $viewport  Viewport type.
+     * @return array<int, array<string, int>> Heatmap data points.
+     */
+    public function get_heatmap_data(string $page_path, string $viewport): array
+    {
+        global $wpdb;
+        $table_name = $this->table_manager->get_heatmap_table_name();
+
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+        $results = $wpdb->get_results(
+            $wpdb->prepare(
+                "SELECT x_grid, y_grid, click_count 
+                FROM {$table_name} 
+                WHERE page_path = %s AND viewport_type = %s
+                LIMIT 2000",
+                $page_path,
+                $viewport
+            ),
+            ARRAY_A
+        );
+
+        if (!is_array($results)) {
+            return array();
+        }
+
+        return array_map(function ($row) {
+            return array(
+                'x' => absint($row['x_grid']),
+                'y' => absint($row['y_grid']),
+                'count' => absint($row['click_count']),
+            );
+        }, $results);
+    }
+
+    /**
+     * Handle AJAX request to get heatmap data.
+     *
+     * @return void
+     */
+    public function handle_ajax_get_heatmap_data(): void
+    {
+        // Security check.
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error('Permission denied');
+        }
+
+        if (!isset($_GET['nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_GET['nonce'])), 'pa_heatmap_nonce')) {
+            wp_send_json_error('Invalid nonce');
+        }
+
+        $page_path = isset($_GET['page_path']) ? sanitize_text_field(wp_unslash($_GET['page_path'])) : '';
+        $viewport = isset($_GET['viewport']) ? sanitize_text_field(wp_unslash($_GET['viewport'])) : 'desktop';
+
+        if (empty($page_path)) {
+            wp_send_json_error('Missing page path');
+        }
+
+        $data = $this->get_heatmap_data($page_path, $viewport);
+
+        wp_send_json_success($data);
+    }
 }
