@@ -13,7 +13,9 @@
 		hourly: null,
 		topPages: null,
 		referrer: null,
-		referrerDonut: null
+		referrerDonut: null,
+		device: null,
+		os: null
 	};
 
 	// State for date range
@@ -50,6 +52,12 @@
 
 		// Initialize Referrer Donut Chart.
 		initReferrerDonutChart();
+
+		// Initialize Device Type Chart.
+		initDeviceChart();
+
+		// Initialize OS Chart.
+		initOsChart();
 
 		// Start polling for real-time updates (every 30 seconds).
 		setInterval(fetchStats, 30000);
@@ -259,6 +267,52 @@
 	}
 
 	/**
+	 * Initialize Device Type chart.
+	 */
+	function initDeviceChart() {
+		const chartElement = document.getElementById('pa-device-chart');
+		if (!chartElement) {
+			return;
+		}
+
+		const chartData = getChartData(chartElement);
+		if (!chartData || !chartData.labels || chartData.labels.length === 0) {
+			chartElement.innerHTML = '<p>No data available.</p>';
+			return;
+		}
+
+		charts.device = new frappe.Chart(chartElement, {
+			data: chartData,
+			type: 'bar',
+			height: 300,
+			colors: ['#2271b1']
+		});
+	}
+
+	/**
+	 * Initialize Operating System chart.
+	 */
+	function initOsChart() {
+		const chartElement = document.getElementById('pa-os-chart');
+		if (!chartElement) {
+			return;
+		}
+
+		const chartData = getChartData(chartElement);
+		if (!chartData || !chartData.labels || chartData.labels.length === 0) {
+			chartElement.innerHTML = '<p>No data available.</p>';
+			return;
+		}
+
+		charts.os = new frappe.Chart(chartElement, {
+			data: chartData,
+			type: 'bar', // Using bar chart as there might be many OS versions
+			height: 300,
+			colors: ['#00a32a']
+		});
+	}
+
+	/**
 	 * Get chart data from data attribute.
 	 *
 	 * @param {HTMLElement} element Chart container element.
@@ -336,6 +390,12 @@
 		}
 		if (charts.referrerDonut && data.referrer_stats && data.referrer_stats.chart_data) {
 			charts.referrerDonut.update(data.referrer_stats.chart_data);
+		}
+		if (charts.device && data.device_stats && data.device_stats.chart_data) {
+			charts.device.update(data.device_stats.chart_data);
+		}
+		if (charts.os && data.os_stats && data.os_stats.chart_data) {
+			charts.os.update(data.os_stats.chart_data);
 		}
 
 		// Update Tables
