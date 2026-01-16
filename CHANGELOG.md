@@ -5,6 +5,11 @@ All notable changes to Privacy-First Analytics Lite will be documented in this f
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.2] - 2026-01-16
+### Fixed
+- **Dashboard UI**: Fixed layout issue where the WordPress footer was floating up into the content area.
+- **Admin Notices**: Restricted "What's New" release notes to only appear on the Privacy Analytics dashboard page.
+
 ## [1.5.1] - 2026-01-16
 ### Fixed
 - **Heatmaps**: Refined heatmap data collection and visualization for better accuracy.

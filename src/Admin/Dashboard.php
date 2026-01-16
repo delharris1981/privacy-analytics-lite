@@ -180,202 +180,204 @@ class Dashboard
 				</div>
 			</div>
 
-		</div>
 
-		<!-- Tabs Navigation -->
-		<nav class="nav-tab-wrapper wp-clearfix">
-			<a href="#" class="nav-tab nav-tab-active"
-				data-tab="overview"><?php echo esc_html__('Overview', 'privacy-analytics-lite'); ?></a>
-			<a href="#" class="nav-tab"
-				data-tab="heatmaps"><?php echo esc_html__('Heatmap Manager', 'privacy-analytics-lite'); ?></a>
-		</nav>
 
-		<div id="view-overview" class="pa-tab-content">
-			<!-- Summary Stats Cards -->
-			<div class="pa-stats-grid">
-				<div class="pa-stat-card">
-					<div class="pa-stat-label"><?php echo esc_html__('Total Hits', 'privacy-analytics-lite'); ?></div>
-					<div class="pa-stat-value"><?php echo esc_html(number_format_i18n($summary_stats['total_hits'])); ?>
+			<!-- Tabs Navigation -->
+			<nav class="nav-tab-wrapper wp-clearfix">
+				<a href="#" class="nav-tab nav-tab-active"
+					data-tab="overview"><?php echo esc_html__('Overview', 'privacy-analytics-lite'); ?></a>
+				<a href="#" class="nav-tab"
+					data-tab="heatmaps"><?php echo esc_html__('Heatmap Manager', 'privacy-analytics-lite'); ?></a>
+			</nav>
+
+			<div id="view-overview" class="pa-tab-content">
+				<!-- Summary Stats Cards -->
+				<div class="pa-stats-grid">
+					<div class="pa-stat-card">
+						<div class="pa-stat-label"><?php echo esc_html__('Total Hits', 'privacy-analytics-lite'); ?></div>
+						<div class="pa-stat-value"><?php echo esc_html(number_format_i18n($summary_stats['total_hits'])); ?>
+						</div>
+						<div class="pa-stat-period"><?php echo esc_html__('Last 30 days', 'privacy-analytics-lite'); ?></div>
 					</div>
-					<div class="pa-stat-period"><?php echo esc_html__('Last 30 days', 'privacy-analytics-lite'); ?></div>
-				</div>
-				<div class="pa-stat-card">
-					<div class="pa-stat-label"><?php echo esc_html__('Unique Visitors', 'privacy-analytics-lite'); ?></div>
-					<div class="pa-stat-value">
-						<?php echo esc_html(number_format_i18n($summary_stats['unique_visitors'])); ?>
+					<div class="pa-stat-card">
+						<div class="pa-stat-label"><?php echo esc_html__('Unique Visitors', 'privacy-analytics-lite'); ?></div>
+						<div class="pa-stat-value">
+							<?php echo esc_html(number_format_i18n($summary_stats['unique_visitors'])); ?>
+						</div>
+						<div class="pa-stat-period"><?php echo esc_html__('Last 30 days', 'privacy-analytics-lite'); ?></div>
 					</div>
-					<div class="pa-stat-period"><?php echo esc_html__('Last 30 days', 'privacy-analytics-lite'); ?></div>
+					<div class="pa-stat-card">
+						<div class="pa-stat-label"><?php echo esc_html__('Top Pages', 'privacy-analytics-lite'); ?></div>
+						<div class="pa-stat-value"><?php echo esc_html(number_format_i18n(count($top_pages))); ?></div>
+						<div class="pa-stat-period"><?php echo esc_html__('Tracked', 'privacy-analytics-lite'); ?></div>
+					</div>
 				</div>
-				<div class="pa-stat-card">
-					<div class="pa-stat-label"><?php echo esc_html__('Top Pages', 'privacy-analytics-lite'); ?></div>
-					<div class="pa-stat-value"><?php echo esc_html(number_format_i18n(count($top_pages))); ?></div>
-					<div class="pa-stat-period"><?php echo esc_html__('Tracked', 'privacy-analytics-lite'); ?></div>
-				</div>
-			</div>
 
-			<!-- Daily Trends Chart -->
-			<div class="pa-chart-container">
-				<h2><?php echo esc_html__('Daily Trends', 'privacy-analytics-lite'); ?></h2>
-				<div id="pa-daily-trends-chart" class="pa-chart"
-					data-chart-data="<?php echo esc_attr(wp_json_encode($daily_trends)); ?>"></div>
-			</div>
-
-
-
-			<!-- New Charts Grid -->
-			<div class="pa-charts-grid">
-				<!-- Hourly Traffic Chart -->
+				<!-- Daily Trends Chart -->
 				<div class="pa-chart-container">
-					<h2><?php echo esc_html__('Hourly Traffic (Last 24h)', 'privacy-analytics-lite'); ?></h2>
-					<div id="pa-hourly-chart" class="pa-chart"
-						data-chart-data="<?php echo esc_attr(wp_json_encode($hourly_stats)); ?>"></div>
+					<h2><?php echo esc_html__('Daily Trends', 'privacy-analytics-lite'); ?></h2>
+					<div id="pa-daily-trends-chart" class="pa-chart"
+						data-chart-data="<?php echo esc_attr(wp_json_encode($daily_trends)); ?>"></div>
 				</div>
 
-				<!-- Referrer Distribution Chart (Donut) -->
-				<div class="pa-chart-container">
-					<h2><?php echo esc_html__('Referrer Distribution', 'privacy-analytics-lite'); ?></h2>
-					<div id="pa-referrer-donut-chart" class="pa-chart"
-						data-chart-data="<?php echo esc_attr(wp_json_encode($referrer_stats['chart_data'])); ?>"></div>
-				</div>
-			</div>
-
-			<!-- Device & OS Charts Grid -->
-			<div class="pa-charts-grid">
-				<!-- Device Type Chart -->
-				<div class="pa-chart-container">
-					<h2><?php echo esc_html__('Device Types', 'privacy-analytics-lite'); ?></h2>
-					<div id="pa-device-chart" class="pa-chart"
-						data-chart-data="<?php echo esc_attr(wp_json_encode($device_stats['chart_data'])); ?>"></div>
-				</div>
-
-				<!-- OS Chart -->
-				<div class="pa-chart-container">
-					<h2><?php echo esc_html__('Operating Systems', 'privacy-analytics-lite'); ?></h2>
-					<div id="pa-os-chart" class="pa-chart"
-						data-chart-data="<?php echo esc_attr(wp_json_encode($os_stats['chart_data'])); ?>"></div>
-				</div>
-			</div>
 
 
-			<!-- Existing Charts Grid -->
-			<div class="pa-charts-grid">
-				<!-- Top Pages Chart -->
-				<div class="pa-chart-container">
-					<h2><?php echo esc_html__('Top Pages', 'privacy-analytics-lite'); ?></h2>
-					<div id="pa-top-pages-chart" class="pa-chart"
-						data-chart-data="<?php echo esc_attr(wp_json_encode($top_pages['chart_data'])); ?>"></div>
+				<!-- New Charts Grid -->
+				<div class="pa-charts-grid">
+					<!-- Hourly Traffic Chart -->
+					<div class="pa-chart-container">
+						<h2><?php echo esc_html__('Hourly Traffic (Last 24h)', 'privacy-analytics-lite'); ?></h2>
+						<div id="pa-hourly-chart" class="pa-chart"
+							data-chart-data="<?php echo esc_attr(wp_json_encode($hourly_stats)); ?>"></div>
+					</div>
+
+					<!-- Referrer Distribution Chart (Donut) -->
+					<div class="pa-chart-container">
+						<h2><?php echo esc_html__('Referrer Distribution', 'privacy-analytics-lite'); ?></h2>
+						<div id="pa-referrer-donut-chart" class="pa-chart"
+							data-chart-data="<?php echo esc_attr(wp_json_encode($referrer_stats['chart_data'])); ?>"></div>
+					</div>
 				</div>
 
-				<!-- Referral Sources Chart -->
-				<div class="pa-chart-container">
-					<h2><?php echo esc_html__('Referral Sources', 'privacy-analytics-lite'); ?></h2>
-					<div id="pa-referrer-chart" class="pa-chart"
-						data-chart-data="<?php echo esc_attr(wp_json_encode($referrer_stats['chart_data'])); ?>"></div>
-				</div>
-			</div>
+				<!-- Device & OS Charts Grid -->
+				<div class="pa-charts-grid">
+					<!-- Device Type Chart -->
+					<div class="pa-chart-container">
+						<h2><?php echo esc_html__('Device Types', 'privacy-analytics-lite'); ?></h2>
+						<div id="pa-device-chart" class="pa-chart"
+							data-chart-data="<?php echo esc_attr(wp_json_encode($device_stats['chart_data'])); ?>"></div>
+					</div>
 
-			<!-- Tables -->
-			<div class="pa-tables-grid">
-				<!-- Top Pages Table -->
-				<div class="pa-table-container">
-					<h2><?php echo esc_html__('Top Pages', 'privacy-analytics-lite'); ?></h2>
-					<?php $this->render_top_pages_table($top_pages['table_data']); ?>
-				</div>
-
-				<!-- Referrer Sources Table -->
-				<div class="pa-table-container">
-					<h2><?php echo esc_html__('Referral Sources', 'privacy-analytics-lite'); ?></h2>
-					<?php $this->render_referrer_table($referrer_stats['table_data']); ?>
-				</div>
-			</div>
-
-			<!-- Device Tables -->
-			<div class="pa-tables-grid">
-				<div class="pa-table-container">
-					<h2><?php echo esc_html__('Device Types', 'privacy-analytics-lite'); ?></h2>
-					<?php $this->render_device_table($device_stats['table_data']); ?>
+					<!-- OS Chart -->
+					<div class="pa-chart-container">
+						<h2><?php echo esc_html__('Operating Systems', 'privacy-analytics-lite'); ?></h2>
+						<div id="pa-os-chart" class="pa-chart"
+							data-chart-data="<?php echo esc_attr(wp_json_encode($os_stats['chart_data'])); ?>"></div>
+					</div>
 				</div>
 
-				<div class="pa-table-container">
-					<h2><?php echo esc_html__('Operating Systems', 'privacy-analytics-lite'); ?></h2>
-					<?php $this->render_os_table($os_stats['table_data']); ?>
+
+				<!-- Existing Charts Grid -->
+				<div class="pa-charts-grid">
+					<!-- Top Pages Chart -->
+					<div class="pa-chart-container">
+						<h2><?php echo esc_html__('Top Pages', 'privacy-analytics-lite'); ?></h2>
+						<div id="pa-top-pages-chart" class="pa-chart"
+							data-chart-data="<?php echo esc_attr(wp_json_encode($top_pages['chart_data'])); ?>"></div>
+					</div>
+
+					<!-- Referral Sources Chart -->
+					<div class="pa-chart-container">
+						<h2><?php echo esc_html__('Referral Sources', 'privacy-analytics-lite'); ?></h2>
+						<div id="pa-referrer-chart" class="pa-chart"
+							data-chart-data="<?php echo esc_attr(wp_json_encode($referrer_stats['chart_data'])); ?>"></div>
+					</div>
 				</div>
-			</div>
-		</div> <!-- End Overview Tab -->
 
-		<!-- Heatmaps Tab -->
-		<div id="view-heatmaps" class="pa-tab-content" style="display: none; padding-top: 20px;">
-			<div class="card pa-card">
-				<h2><?php echo esc_html__('Manage Heatmap Tracking', 'privacy-analytics-lite'); ?></h2>
-				<p><?php echo esc_html__('Enable heatmaps for specific pages. To keep your database lite, only track pages you are actively analyzing. Tracking uses a privacy-safe grid system.', 'privacy-analytics-lite'); ?>
-				</p>
+				<!-- Tables -->
+				<div class="pa-tables-grid">
+					<!-- Top Pages Table -->
+					<div class="pa-table-container">
+						<h2><?php echo esc_html__('Top Pages', 'privacy-analytics-lite'); ?></h2>
+						<?php $this->render_top_pages_table($top_pages['table_data']); ?>
+					</div>
 
-				<table class="wp-list-table widefat fixed striped">
-					<thead>
-						<tr>
-							<th><?php echo esc_html__('Page Path', 'privacy-analytics-lite'); ?></th>
-							<th><?php echo esc_html__('Status', 'privacy-analytics-lite'); ?></th>
-							<th><?php echo esc_html__('Action', 'privacy-analytics-lite'); ?></th>
-						</tr>
-					</thead>
-					<tbody>
-						<?php if (empty($tracked_pages)): ?>
+					<!-- Referrer Sources Table -->
+					<div class="pa-table-container">
+						<h2><?php echo esc_html__('Referral Sources', 'privacy-analytics-lite'); ?></h2>
+						<?php $this->render_referrer_table($referrer_stats['table_data']); ?>
+					</div>
+				</div>
+
+				<!-- Device Tables -->
+				<div class="pa-tables-grid">
+					<div class="pa-table-container">
+						<h2><?php echo esc_html__('Device Types', 'privacy-analytics-lite'); ?></h2>
+						<?php $this->render_device_table($device_stats['table_data']); ?>
+					</div>
+
+					<div class="pa-table-container">
+						<h2><?php echo esc_html__('Operating Systems', 'privacy-analytics-lite'); ?></h2>
+						<?php $this->render_os_table($os_stats['table_data']); ?>
+					</div>
+				</div>
+			</div> <!-- End Overview Tab -->
+
+			<!-- Heatmaps Tab -->
+			<div id="view-heatmaps" class="pa-tab-content" style="display: none; padding-top: 20px;">
+				<div class="card pa-card">
+					<h2><?php echo esc_html__('Manage Heatmap Tracking', 'privacy-analytics-lite'); ?></h2>
+					<p><?php echo esc_html__('Enable heatmaps for specific pages. To keep your database lite, only track pages you are actively analyzing. Tracking uses a privacy-safe grid system.', 'privacy-analytics-lite'); ?>
+					</p>
+
+					<table class="wp-list-table widefat fixed striped">
+						<thead>
 							<tr>
-								<td colspan="3"><?php echo esc_html__('No pages tracked yet.', 'privacy-analytics-lite'); ?></td>
+								<th><?php echo esc_html__('Page Path', 'privacy-analytics-lite'); ?></th>
+								<th><?php echo esc_html__('Status', 'privacy-analytics-lite'); ?></th>
+								<th><?php echo esc_html__('Action', 'privacy-analytics-lite'); ?></th>
 							</tr>
-						<?php else: ?>
-							<?php foreach ($tracked_pages as $page):
-								$is_enabled = in_array($page, $heatmap_pages, true);
-								?>
+						</thead>
+						<tbody>
+							<?php if (empty($tracked_pages)): ?>
 								<tr>
-									<td>
-										<a href="<?php echo esc_url(home_url($page)); ?>" target="_blank">
-											<?php echo esc_html($page); ?> <span class="dashicons dashicons-external"></span>
-										</a>
-									</td>
-									<td>
-										<?php if ($is_enabled): ?>
-											<span class="dashicons dashicons-yes" style="color: #00a32a;"></span>
-											<?php echo esc_html__('Active', 'privacy-analytics-lite'); ?>
-										<?php else: ?>
-											<span class="dashicons dashicons-no-alt" style="color: #d63638;"></span>
-											<?php echo esc_html__('Inactive', 'privacy-analytics-lite'); ?>
-										<?php endif; ?>
-									</td>
-									<td>
-										<button
-											class="button pa-toggle-heatmap <?php echo $is_enabled ? 'button-secondary' : 'button-primary'; ?>"
-											data-page="<?php echo esc_attr($page); ?>"
-											data-state="<?php echo $is_enabled ? 'on' : 'off'; ?>">
-											<?php echo $is_enabled ? esc_html__('Disable', 'privacy-analytics-lite') : esc_html__('Enable', 'privacy-analytics-lite'); ?>
-										</button>
-										<?php if ($is_enabled): ?>
-											<a href="<?php echo esc_url(add_query_arg('pa_heatmap', 'true', home_url($page))); ?>"
-												target="_blank" class="button button-secondary">
-												<span class="dashicons dashicons-visibility" style="margin-top: 4px;"></span>
-												<?php echo esc_html__('View Heatmap', 'privacy-analytics-lite'); ?>
-											</a>
-										<?php endif; ?>
+									<td colspan="3"><?php echo esc_html__('No pages tracked yet.', 'privacy-analytics-lite'); ?>
 									</td>
 								</tr>
-							<?php endforeach; ?>
-						<?php endif; ?>
-					</tbody>
-				</table>
-			</div>
-		</div>
-
-
-
-		<!-- What's New Modal -->
-		<div class="pa-modal-overlay">
-			<div class="pa-modal">
-				<div class="pa-modal-header">
-					<h2><?php echo esc_html__('What\'s New', 'privacy-analytics-lite'); ?></h2>
-					<button id="pa-modal-close" class="pa-modal-close">&times;</button>
+							<?php else: ?>
+								<?php foreach ($tracked_pages as $page):
+									$is_enabled = in_array($page, $heatmap_pages, true);
+									?>
+									<tr>
+										<td>
+											<a href="<?php echo esc_url(home_url($page)); ?>" target="_blank">
+												<?php echo esc_html($page); ?> <span class="dashicons dashicons-external"></span>
+											</a>
+										</td>
+										<td>
+											<?php if ($is_enabled): ?>
+												<span class="dashicons dashicons-yes" style="color: #00a32a;"></span>
+												<?php echo esc_html__('Active', 'privacy-analytics-lite'); ?>
+											<?php else: ?>
+												<span class="dashicons dashicons-no-alt" style="color: #d63638;"></span>
+												<?php echo esc_html__('Inactive', 'privacy-analytics-lite'); ?>
+											<?php endif; ?>
+										</td>
+										<td>
+											<button
+												class="button pa-toggle-heatmap <?php echo $is_enabled ? 'button-secondary' : 'button-primary'; ?>"
+												data-page="<?php echo esc_attr($page); ?>"
+												data-state="<?php echo $is_enabled ? 'on' : 'off'; ?>">
+												<?php echo $is_enabled ? esc_html__('Disable', 'privacy-analytics-lite') : esc_html__('Enable', 'privacy-analytics-lite'); ?>
+											</button>
+											<?php if ($is_enabled): ?>
+												<a href="<?php echo esc_url(add_query_arg('pa_heatmap', 'true', home_url($page))); ?>"
+													target="_blank" class="button button-secondary">
+													<span class="dashicons dashicons-visibility" style="margin-top: 4px;"></span>
+													<?php echo esc_html__('View Heatmap', 'privacy-analytics-lite'); ?>
+												</a>
+											<?php endif; ?>
+										</td>
+									</tr>
+								<?php endforeach; ?>
+							<?php endif; ?>
+						</tbody>
+					</table>
 				</div>
-				<div class="pa-modal-content">
-					<?php echo wp_kses_post($this->get_latest_changelog()); ?>
+			</div>
+
+
+
+			<!-- What's New Modal -->
+			<div class="pa-modal-overlay">
+				<div class="pa-modal">
+					<div class="pa-modal-header">
+						<h2><?php echo esc_html__('What\'s New', 'privacy-analytics-lite'); ?></h2>
+						<button id="pa-modal-close" class="pa-modal-close">&times;</button>
+					</div>
+					<div class="pa-modal-content">
+						<?php echo wp_kses_post($this->get_latest_changelog()); ?>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -1046,6 +1048,11 @@ class Dashboard
 	 */
 	public function maybe_display_update_notice(): void
 	{
+		$screen = get_current_screen();
+		if (!$screen || 'toplevel_page_privacy-analytics-lite' !== $screen->id) {
+			return;
+		}
+
 		$new_version = get_transient('pa_lite_updated');
 		if (!$new_version) {
 			return;
