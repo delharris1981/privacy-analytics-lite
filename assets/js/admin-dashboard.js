@@ -84,6 +84,102 @@
 				modalOverlay.classList.add('is-active');
 			});
 		}
+
+		// Handle Tabs
+		initTabs();
+
+		// Handle Heatmap Toggles
+		initHeatmapToggles();
+	}
+
+	/**
+	 * Initialize Tab Navigation.
+	 */
+	function initTabs() {
+		const tabs = document.querySelectorAll('.nav-tab');
+		tabs.forEach(tab => {
+			tab.addEventListener('click', (e) => {
+				e.preventDefault();
+
+				// Deactivate all
+				document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('nav-tab-active'));
+				document.querySelectorAll('.pa-tab-content').forEach(c => c.style.display = 'none');
+
+				// Activate clicked
+				tab.classList.add('nav-tab-active');
+				const targetId = 'view-' + tab.getAttribute('data-tab');
+				const target = document.getElementById(targetId);
+				if (target) {
+					target.style.display = 'block';
+				}
+			});
+		});
+	}
+
+	/**
+	 * Initialize Heatmap Toggles.
+	 */
+	function initHeatmapToggles() {
+		const toggles = document.querySelectorAll('.pa-toggle-heatmap');
+		toggles.forEach(btn => {
+			btn.addEventListener('click', (e) => {
+				e.preventDefault();
+				const page = btn.getAttribute('data-page');
+				const currentState = btn.getAttribute('data-state');
+
+				btn.disabled = true;
+
+				const params = new URLSearchParams({
+					action: 'pa_toggle_heatmap',
+					page: page,
+					state: currentState
+				});
+
+				fetch(ajaxurl, {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/x-www-form-urlencoded',
+					},
+					body: params
+				})
+					.then(response => response.json())
+					.then(data => {
+						btn.disabled = false;
+						if (data.success) {
+							// Toggle UI state locally
+							const newState = data.data.new_state;
+							btn.setAttribute('data-state', newState);
+
+							// Update button text and class
+							if (newState === 'on') {
+								btn.textContent = 'Disable';
+								btn.classList.remove('button-primary');
+								btn.classList.add('button-secondary');
+								// Update status label
+								const statusCell = btn.closest('tr').querySelector('td:nth-child(2)');
+								if (statusCell) {
+									statusCell.innerHTML = '<span class="dashicons dashicons-yes" style="color: #00a32a;"></span> Active';
+								}
+							} else {
+								btn.textContent = 'Enable';
+								btn.classList.remove('button-secondary');
+								btn.classList.add('button-primary');
+								// Update status label
+								const statusCell = btn.closest('tr').querySelector('td:nth-child(2)');
+								if (statusCell) {
+									statusCell.innerHTML = '<span class="dashicons dashicons-no-alt" style="color: #d63638;"></span> Inactive';
+								}
+							}
+						} else {
+							alert('Failed to update tracking setting.');
+						}
+					})
+					.catch(err => {
+						console.error(err);
+						btn.disabled = false;
+					});
+			});
+		});
 	}
 
 	/**

@@ -17,6 +17,7 @@ use PrivacyAnalytics\Lite\Tracking\BotDetector;
 use PrivacyAnalytics\Lite\Tracking\DeviceDetector;
 use PrivacyAnalytics\Lite\Tracking\ReferrerNormalizer;
 use PrivacyAnalytics\Lite\Tracking\Tracker;
+use PrivacyAnalytics\Lite\Tracking\HeatmapTracker;
 
 /**
  * Main plugin class.
@@ -87,6 +88,9 @@ final class Plugin
 		// Phase 3: Register aggregation cron hook.
 		$this->init_aggregation();
 
+		// Phase 3.5: Heatmap Tracking handlers (AJAX).
+		$this->init_heatmap_handlers();
+
 		// Phase 4: Initialize admin dashboard, updates, and GitHub updater.
 		if (is_admin()) {
 			$this->update_manager = new UpdateManager($this->table_manager);
@@ -137,6 +141,18 @@ final class Plugin
 	{
 		// Register cron hook for aggregation.
 		add_action('privacy_analytics_lite_aggregate', array($this, 'run_aggregation'));
+	}
+
+	/**
+	 * Initialize heatmap handlers.
+	 *
+	 * @return void
+	 */
+	private function init_heatmap_handlers(): void
+	{
+		$heatmap_tracker = new HeatmapTracker($this->table_manager);
+		add_action('wp_ajax_pa_track_heatmap', array($heatmap_tracker, 'track_click'));
+		add_action('wp_ajax_nopriv_pa_track_heatmap', array($heatmap_tracker, 'track_click'));
 	}
 
 	/**

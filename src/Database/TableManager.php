@@ -63,6 +63,19 @@ class TableManager
 		) {$charset_collate};";
 
 		dbDelta($stats_sql);
+
+		// Create pa_heatmaps table for click tracking.
+		$heatmap_table = $this->get_heatmap_table_name();
+		$heatmap_sql = "CREATE TABLE {$heatmap_table} (
+			page_path varchar(255) NOT NULL,
+			viewport_type varchar(20) NOT NULL,
+			x_grid int(11) unsigned NOT NULL,
+			y_grid int(11) unsigned NOT NULL,
+			click_count int(11) unsigned NOT NULL DEFAULT 1,
+			PRIMARY KEY  (page_path(191), viewport_type, x_grid, y_grid)
+		) {$charset_collate};";
+
+		dbDelta($heatmap_sql);
 	}
 
 	/**
@@ -81,6 +94,8 @@ class TableManager
 		$wpdb->query("DROP TABLE IF EXISTS {$hits_table}");
 		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$wpdb->query("DROP TABLE IF EXISTS {$stats_table}");
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$wpdb->query("DROP TABLE IF EXISTS {$this->get_heatmap_table_name()}");
 	}
 
 	/**
@@ -103,6 +118,17 @@ class TableManager
 	{
 		global $wpdb;
 		return $wpdb->prefix . 'pa_daily_stats';
+	}
+
+	/**
+	 * Get the heatmap table name.
+	 *
+	 * @return string
+	 */
+	public function get_heatmap_table_name(): string
+	{
+		global $wpdb;
+		return $wpdb->prefix . 'pa_heatmaps';
 	}
 }
 

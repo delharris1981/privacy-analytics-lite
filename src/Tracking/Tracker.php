@@ -125,6 +125,44 @@ class Tracker
 
 		// Save hit.
 		$this->save_hit($hit);
+
+		// Maybe enqueue heatmap tracking.
+		$this->maybe_enqueue_heatmap_script();
+	}
+
+	/**
+	 * Check and enqueue heatmap script.
+	 *
+	 * @return void
+	 */
+	private function maybe_enqueue_heatmap_script(): void
+	{
+		$enabled_pages = get_option('privacy_analytics_heatmap_pages', array());
+		if (!is_array($enabled_pages) || empty($enabled_pages)) {
+			return;
+		}
+
+		$current_path = $this->get_page_path();
+
+		if (!in_array($current_path, $enabled_pages, true)) {
+			return;
+		}
+
+		// Enqueue script via hook.
+		add_action('wp_enqueue_scripts', function () use ($current_path) {
+			wp_enqueue_script(
+				'pa-heatmap-tracker',
+				PRIVACY_ANALYTICS_LITE_PLUGIN_URL . 'assets/js/heatmap-tracker.js',
+				array(),
+				PRIVACY_ANALYTICS_LITE_VERSION,
+				true
+			);
+
+			wp_localize_script('pa-heatmap-tracker', 'privacy_analytics', array(
+				'ajax_url' => admin_url('admin-ajax.php'),
+				'page_path' => $current_path,
+			));
+		});
 	}
 
 	/**

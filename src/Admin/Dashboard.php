@@ -53,6 +53,7 @@ class Dashboard
 		add_action('admin_menu', array($this, 'add_admin_menu'));
 		add_action('admin_enqueue_scripts', array($this, 'enqueue_assets'));
 		add_action('wp_ajax_privacy_analytics_get_stats', array($this, 'ajax_get_stats'));
+		add_action('wp_ajax_pa_toggle_heatmap', array($this, 'ajax_toggle_heatmap'));
 		add_action('admin_notices', array($this, 'maybe_display_update_notice'));
 	}
 
@@ -142,6 +143,11 @@ class Dashboard
 		$device_stats = $this->get_device_stats($start_date, $end_date);
 		$os_stats = $this->get_os_stats($start_date, $end_date);
 
+		// Get Heatmap data.
+		$heatmap_pages = get_option('privacy_analytics_heatmap_pages', array());
+		// Get all tracked pages (limit 50 for management UI).
+		$tracked_pages = $this->get_all_tracked_pages();
+
 		// Check for update transient and set a flag for JS.
 		$is_updated = (bool) get_transient('pa_lite_updated');
 		if ($is_updated) {
@@ -174,6 +180,17 @@ class Dashboard
 				</div>
 			</div>
 
+		</div>
+
+		<!-- Tabs Navigation -->
+		<nav class="nav-tab-wrapper wp-clearfix">
+			<a href="#" class="nav-tab nav-tab-active"
+				data-tab="overview"><?php echo esc_html__('Overview', 'privacy-analytics-lite'); ?></a>
+			<a href="#" class="nav-tab"
+				data-tab="heatmaps"><?php echo esc_html__('Heatmap Manager', 'privacy-analytics-lite'); ?></a>
+		</nav>
+
+		<div id="view-overview" class="pa-tab-content">
 			<!-- Summary Stats Cards -->
 			<div class="pa-stats-grid">
 				<div class="pa-stat-card">
@@ -284,6 +301,60 @@ class Dashboard
 					<?php $this->render_os_table($os_stats['table_data']); ?>
 				</div>
 			</div>
+			</div> <!-- End Overview Tab -->
+
+			<!-- Heatmaps Tab -->
+			<div id="view-heatmaps" class="pa-tab-content" style="display: none; padding-top: 20px;">
+				<div class="card pa-card">
+					<h2><?php echo esc_html__('Manage Heatmap Tracking', 'privacy-analytics-lite'); ?></h2>
+					<p><?php echo esc_html__('Enable heatmaps for specific pages. To keep your database lite, only track pages you are actively analyzing. Tracking uses a privacy-safe grid system.', 'privacy-analytics-lite'); ?></p>
+					
+					<table class="wp-list-table widefat fixed striped">
+						<thead>
+							<tr>
+								<th><?php echo esc_html__('Page Path', 'privacy-analytics-lite'); ?></th>
+								<th><?php echo esc_html__('Status', 'privacy-analytics-lite'); ?></th>
+								<th><?php echo esc_html__('Action', 'privacy-analytics-lite'); ?></th>
+							</tr>
+						</thead>
+						<tbody>
+							<?php if (empty($tracked_pages)) : ?>
+								<tr><td colspan="3"><?php echo esc_html__('No pages tracked yet.', 'privacy-analytics-lite'); ?></td></tr>
+							<?php else : ?>
+								<?php foreach ($tracked_pages as $page) : 
+									$is_enabled = in_array($page, $heatmap_pages, true);
+								?>
+								<tr>
+									<td>
+										<a href="<?php echo esc_url(home_url($page)); ?>" target="_blank">
+											<?php echo esc_html($page); ?> <span class="dashicons dashicons-external"></span>
+										</a>
+									</td>
+									<td>
+										<?php if ($is_enabled) : ?>
+											<span class="dashicons dashicons-yes" style="color: #00a32a;"></span> <?php echo esc_html__('Active', 'privacy-analytics-lite'); ?>
+										<?php else : ?>
+											<span class="dashicons dashicons-no-alt" style="color: #d63638;"></span> <?php echo esc_html__('Inactive', 'privacy-analytics-lite'); ?>
+										<?php endif; ?>
+									</td>
+									<td>
+										<button class="button pa-toggle-heatmap <?php echo $is_enabled ? 'button-secondary' : 'button-primary'; ?>"
+											data-page="<?php echo esc_attr($page); ?>"
+											data-state="<?php echo $is_enabled ? 'on' : 'off'; ?>">
+											<?php echo $is_enabled ? esc_html__('Disable', 'privacy-analytics-lite') : esc_html__('Enable', 'privacy-analytics-lite'); ?>
+										</button>
+										<?php if ($is_enabled) : ?>
+											<!-- Future: Link to visualize heatmap -->
+										<?php endif; ?>
+									</td>
+								</tr>
+								<?php endforeach; ?>
+							<?php endif; ?>
+						</tbody>
+					</table>
+				</div>
+			</div>
+
 			<!-- Footer -->
 			<div class="pa-footer">
 				<div class="pa-footer-left">
