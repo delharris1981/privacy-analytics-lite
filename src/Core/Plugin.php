@@ -14,6 +14,7 @@ use PrivacyAnalytics\Lite\Database\Aggregator;
 use PrivacyAnalytics\Lite\Database\TableManager;
 use PrivacyAnalytics\Lite\Tracking\Anonymizer;
 use PrivacyAnalytics\Lite\Tracking\BotDetector;
+use PrivacyAnalytics\Lite\Tracking\DeviceDetector;
 use PrivacyAnalytics\Lite\Tracking\ReferrerNormalizer;
 use PrivacyAnalytics\Lite\Tracking\Tracker;
 
@@ -113,11 +114,13 @@ final class Plugin
 		$anonymizer = new Anonymizer();
 		$bot_detector = new BotDetector();
 		$referrer_normalizer = new ReferrerNormalizer();
+		$device_detector = new DeviceDetector();
 
 		$this->tracker = new Tracker(
 			$anonymizer,
 			$bot_detector,
 			$referrer_normalizer,
+			$device_detector,
 			$this->table_manager
 		);
 
