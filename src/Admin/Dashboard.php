@@ -381,7 +381,6 @@ class Dashboard
 				</div>
 			</div>
 		</div>
-		</div>
 		<?php
 	}
 
