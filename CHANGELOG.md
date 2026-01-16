@@ -5,6 +5,10 @@ All notable changes to Privacy-First Analytics Lite will be documented in this f
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.3] - 2026-01-16
+### Fixed
+- **Tracking**: Added exclusion for static files (e.g., `.ico`, `.jpg`, `.css`, `.js`) to prevent them from inflating page view counts.
+
 ## [1.4.2] - 2026-01-16
 ### Fixed
 - **Dashboard Charts**: Resolved issue where Device Type and Operating System charts were not rendering by initializing them correctly in the dashboard JavaScript.

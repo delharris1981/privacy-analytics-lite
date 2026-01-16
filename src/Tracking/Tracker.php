@@ -155,7 +155,52 @@ class Tracker
 			return false;
 		}
 
+
+		// Don't track static resources.
+		if ($this->is_static_resource()) {
+			return false;
+		}
+
 		return true;
+	}
+
+	/**
+	 * Check if the request is for a static resource.
+	 *
+	 * @return bool True if static resource, false otherwise.
+	 */
+	private function is_static_resource(): bool
+	{
+		$uri = isset($_SERVER['REQUEST_URI']) ? sanitize_text_field(wp_unslash($_SERVER['REQUEST_URI'])) : '';
+		$path = parse_url($uri, PHP_URL_PATH);
+
+		if (empty($path)) {
+			return false;
+		}
+
+		$extensions = array(
+			'ico',
+			'jpg',
+			'jpeg',
+			'png',
+			'gif',
+			'svg',
+			'webp',
+			'css',
+			'js',
+			'woff',
+			'woff2',
+			'ttf',
+			'eot',
+			'map',
+			'txt',
+			'xml',
+			'json',
+		);
+
+		$extension = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+
+		return in_array($extension, $extensions, true);
 	}
 
 	/**
