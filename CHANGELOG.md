@@ -5,6 +5,10 @@ All notable changes to Privacy-First Analytics Lite will be documented in this f
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.4] - 2026-01-16
+### Fixed
+- **Dashboard UI**: Restored the missing "What's New" button and footer, allowing users to view the changelog directly from the dashboard.
+
 ## [1.4.3] - 2026-01-16
 ### Fixed
 - **Tracking**: Added exclusion for static files (e.g., `.ico`, `.jpg`, `.css`, `.js`) to prevent them from inflating page view counts.

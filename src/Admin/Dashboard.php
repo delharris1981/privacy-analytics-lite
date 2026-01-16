@@ -284,8 +284,74 @@ class Dashboard
 					<?php $this->render_os_table($os_stats['table_data']); ?>
 				</div>
 			</div>
+			<!-- Footer -->
+			<div class="pa-footer">
+				<div class="pa-footer-left">
+					<?php echo esc_html__('Thank you for creating with WordPress.', 'privacy-analytics-lite'); ?>
+				</div>
+				<div class="pa-footer-right">
+					<span class="pa-version">Version <?php echo esc_html($this->version); ?></span>
+					<button id="pa-whats-new-btn"
+						class="button button-link"><?php echo esc_html__('What\'s New', 'privacy-analytics-lite'); ?></button>
+				</div>
+			</div>
+
+			<!-- What's New Modal -->
+			<div class="pa-modal-overlay">
+				<div class="pa-modal">
+					<div class="pa-modal-header">
+						<h2><?php echo esc_html__('What\'s New', 'privacy-analytics-lite'); ?></h2>
+						<button id="pa-modal-close" class="pa-modal-close">&times;</button>
+					</div>
+					<div class="pa-modal-content">
+						<?php echo wp_kses_post($this->get_latest_changelog()); ?>
+					</div>
+				</div>
+			</div>
 		</div>
 		<?php
+	}
+
+	/**
+	 * Get the latest changelog entry.
+	 *
+	 * @return string HTML formatted changelog.
+	 */
+	private function get_latest_changelog(): string
+	{
+		$changelog_path = PRIVACY_ANALYTICS_LITE_PLUGIN_DIR . 'CHANGELOG.md';
+
+		if (!file_exists($changelog_path)) {
+			return '<p>' . esc_html__('Changelog not found.', 'privacy-analytics-lite') . '</p>';
+		}
+
+		$content = file_get_contents($changelog_path);
+		if (!$content) {
+			return '';
+		}
+
+		// Extract the first version section.
+		if (preg_match('/## \[\d+\.\d+\.\d+\].*?(?=## \[\d+\.\d+\.\d+\]|$)/s', $content, $matches)) {
+			$markdown = $matches[0];
+
+			// Simple Markdown to HTML conversion.
+			// Convert headers
+			$html = preg_replace('/### (.*)/', '<h3>$1</h3>', $markdown);
+			// Convert list items
+			$html = preg_replace('/- (.*)/', '<li>$1</li>', $html);
+			// Wrap lists
+			$html = preg_replace('/(<li>.*<\/li>)/s', '<ul>$1</ul>', $html);
+			// Convert bold
+			$html = preg_replace('/\*\*(.*?)\*\*/', '<strong>$1</strong>', $html);
+			// Convert code
+			$html = preg_replace('/`(.*?)`/', '<code>$1</code>', $html);
+			// Paragraphs (double newlines)
+			$html = preg_replace('/\n\n/', '<br><br>', $html);
+
+			return $html;
+		}
+
+		return '<p>' . esc_html__('No recent changes found.', 'privacy-analytics-lite') . '</p>';
 	}
 
 	/**
