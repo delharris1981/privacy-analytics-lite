@@ -55,6 +55,7 @@ class Dashboard
 		add_action('wp_ajax_privacy_analytics_get_stats', array($this, 'ajax_get_stats'));
 		add_action('wp_ajax_pa_toggle_heatmap', array($this, 'ajax_toggle_heatmap'));
 		add_action('admin_notices', array($this, 'maybe_display_update_notice'));
+		add_action('wp_ajax_privacy_analytics_export_report', array($this, 'ajax_export_report'));
 	}
 
 	/**
@@ -158,14 +159,24 @@ class Dashboard
 		?>
 		<div class="wrap privacy-analytics-dashboard">
 			<div class="pa-header">
-				<h1><?php echo esc_html__('Privacy Analytics', 'privacy-analytics-lite'); ?></h1>
+				<h1>
+					<?php echo esc_html__('Privacy Analytics', 'privacy-analytics-lite'); ?>
+				</h1>
 
 				<div class="pa-date-controls">
 					<select id="pa-date-range-selector" class="pa-select">
-						<option value="7"><?php echo esc_html__('Last 7 Days', 'privacy-analytics-lite'); ?></option>
-						<option value="30" selected><?php echo esc_html__('Last 30 Days', 'privacy-analytics-lite'); ?></option>
-						<option value="90"><?php echo esc_html__('Last 90 Days', 'privacy-analytics-lite'); ?></option>
-						<option value="custom"><?php echo esc_html__('Custom Range', 'privacy-analytics-lite'); ?></option>
+						<option value="7">
+							<?php echo esc_html__('Last 7 Days', 'privacy-analytics-lite'); ?>
+						</option>
+						<option value="30" selected>
+							<?php echo esc_html__('Last 30 Days', 'privacy-analytics-lite'); ?>
+						</option>
+						<option value="90">
+							<?php echo esc_html__('Last 90 Days', 'privacy-analytics-lite'); ?>
+						</option>
+						<option value="custom">
+							<?php echo esc_html__('Custom Range', 'privacy-analytics-lite'); ?>
+						</option>
 					</select>
 
 					<div id="pa-custom-date-inputs" class="pa-date-inputs" style="display: none;">
@@ -174,9 +185,15 @@ class Dashboard
 						<span class="pa-date-separator">-</span>
 						<input type="date" id="pa-date-end" value="<?php echo esc_attr($end_date); ?>"
 							max="<?php echo esc_attr($end_date); ?>">
-						<button type="button" id="pa-date-apply"
-							class="button button-secondary"><?php echo esc_html__('Apply', 'privacy-analytics-lite'); ?></button>
+						<button type="button" id="pa-date-apply" class="button button-secondary">
+							<?php echo esc_html__('Apply', 'privacy-analytics-lite'); ?>
+						</button>
 					</div>
+
+					<button type="button" id="pa-export-report-btn" class="button button-secondary" style="margin-left: 10px;">
+						<span class="dashicons dashicons-download" style="margin-top: 4px;"></span>
+						<?php echo esc_html__('Export Report', 'privacy-analytics-lite'); ?>
+					</button>
 				</div>
 			</div>
 
@@ -184,38 +201,57 @@ class Dashboard
 
 			<!-- Tabs Navigation -->
 			<nav class="nav-tab-wrapper wp-clearfix">
-				<a href="#" class="nav-tab nav-tab-active"
-					data-tab="overview"><?php echo esc_html__('Overview', 'privacy-analytics-lite'); ?></a>
-				<a href="#" class="nav-tab"
-					data-tab="heatmaps"><?php echo esc_html__('Heatmap Manager', 'privacy-analytics-lite'); ?></a>
+				<a href="#" class="nav-tab nav-tab-active" data-tab="overview">
+					<?php echo esc_html__('Overview', 'privacy-analytics-lite'); ?>
+				</a>
+				<a href="#" class="nav-tab" data-tab="heatmaps">
+					<?php echo esc_html__('Heatmap Manager', 'privacy-analytics-lite'); ?>
+				</a>
 			</nav>
 
 			<div id="view-overview" class="pa-tab-content">
 				<!-- Summary Stats Cards -->
 				<div class="pa-stats-grid">
 					<div class="pa-stat-card">
-						<div class="pa-stat-label"><?php echo esc_html__('Total Hits', 'privacy-analytics-lite'); ?></div>
-						<div class="pa-stat-value"><?php echo esc_html(number_format_i18n($summary_stats['total_hits'])); ?>
+						<div class="pa-stat-label">
+							<?php echo esc_html__('Total Hits', 'privacy-analytics-lite'); ?>
 						</div>
-						<div class="pa-stat-period"><?php echo esc_html__('Last 30 days', 'privacy-analytics-lite'); ?></div>
+						<div class="pa-stat-value">
+							<?php echo esc_html(number_format_i18n($summary_stats['total_hits'])); ?>
+						</div>
+						<div class="pa-stat-period">
+							<?php echo esc_html__('Last 30 days', 'privacy-analytics-lite'); ?>
+						</div>
 					</div>
 					<div class="pa-stat-card">
-						<div class="pa-stat-label"><?php echo esc_html__('Unique Visitors', 'privacy-analytics-lite'); ?></div>
+						<div class="pa-stat-label">
+							<?php echo esc_html__('Unique Visitors', 'privacy-analytics-lite'); ?>
+						</div>
 						<div class="pa-stat-value">
 							<?php echo esc_html(number_format_i18n($summary_stats['unique_visitors'])); ?>
 						</div>
-						<div class="pa-stat-period"><?php echo esc_html__('Last 30 days', 'privacy-analytics-lite'); ?></div>
+						<div class="pa-stat-period">
+							<?php echo esc_html__('Last 30 days', 'privacy-analytics-lite'); ?>
+						</div>
 					</div>
 					<div class="pa-stat-card">
-						<div class="pa-stat-label"><?php echo esc_html__('Top Pages', 'privacy-analytics-lite'); ?></div>
-						<div class="pa-stat-value"><?php echo esc_html(number_format_i18n(count($top_pages))); ?></div>
-						<div class="pa-stat-period"><?php echo esc_html__('Tracked', 'privacy-analytics-lite'); ?></div>
+						<div class="pa-stat-label">
+							<?php echo esc_html__('Top Pages', 'privacy-analytics-lite'); ?>
+						</div>
+						<div class="pa-stat-value">
+							<?php echo esc_html(number_format_i18n(count($top_pages))); ?>
+						</div>
+						<div class="pa-stat-period">
+							<?php echo esc_html__('Tracked', 'privacy-analytics-lite'); ?>
+						</div>
 					</div>
 				</div>
 
 				<!-- Daily Trends Chart -->
 				<div class="pa-chart-container">
-					<h2><?php echo esc_html__('Daily Trends', 'privacy-analytics-lite'); ?></h2>
+					<h2>
+						<?php echo esc_html__('Daily Trends', 'privacy-analytics-lite'); ?>
+					</h2>
 					<div id="pa-daily-trends-chart" class="pa-chart"
 						data-chart-data="<?php echo esc_attr(wp_json_encode($daily_trends)); ?>"></div>
 				</div>
@@ -226,14 +262,18 @@ class Dashboard
 				<div class="pa-charts-grid">
 					<!-- Hourly Traffic Chart -->
 					<div class="pa-chart-container">
-						<h2><?php echo esc_html__('Hourly Traffic (Last 24h)', 'privacy-analytics-lite'); ?></h2>
+						<h2>
+							<?php echo esc_html__('Hourly Traffic (Last 24h)', 'privacy-analytics-lite'); ?>
+						</h2>
 						<div id="pa-hourly-chart" class="pa-chart"
 							data-chart-data="<?php echo esc_attr(wp_json_encode($hourly_stats)); ?>"></div>
 					</div>
 
 					<!-- Referrer Distribution Chart (Donut) -->
 					<div class="pa-chart-container">
-						<h2><?php echo esc_html__('Referrer Distribution', 'privacy-analytics-lite'); ?></h2>
+						<h2>
+							<?php echo esc_html__('Referrer Distribution', 'privacy-analytics-lite'); ?>
+						</h2>
 						<div id="pa-referrer-donut-chart" class="pa-chart"
 							data-chart-data="<?php echo esc_attr(wp_json_encode($referrer_stats['chart_data'])); ?>"></div>
 					</div>
@@ -243,14 +283,18 @@ class Dashboard
 				<div class="pa-charts-grid">
 					<!-- Device Type Chart -->
 					<div class="pa-chart-container">
-						<h2><?php echo esc_html__('Device Types', 'privacy-analytics-lite'); ?></h2>
+						<h2>
+							<?php echo esc_html__('Device Types', 'privacy-analytics-lite'); ?>
+						</h2>
 						<div id="pa-device-chart" class="pa-chart"
 							data-chart-data="<?php echo esc_attr(wp_json_encode($device_stats['chart_data'])); ?>"></div>
 					</div>
 
 					<!-- OS Chart -->
 					<div class="pa-chart-container">
-						<h2><?php echo esc_html__('Operating Systems', 'privacy-analytics-lite'); ?></h2>
+						<h2>
+							<?php echo esc_html__('Operating Systems', 'privacy-analytics-lite'); ?>
+						</h2>
 						<div id="pa-os-chart" class="pa-chart"
 							data-chart-data="<?php echo esc_attr(wp_json_encode($os_stats['chart_data'])); ?>"></div>
 					</div>
@@ -261,14 +305,18 @@ class Dashboard
 				<div class="pa-charts-grid">
 					<!-- Top Pages Chart -->
 					<div class="pa-chart-container">
-						<h2><?php echo esc_html__('Top Pages', 'privacy-analytics-lite'); ?></h2>
+						<h2>
+							<?php echo esc_html__('Top Pages', 'privacy-analytics-lite'); ?>
+						</h2>
 						<div id="pa-top-pages-chart" class="pa-chart"
 							data-chart-data="<?php echo esc_attr(wp_json_encode($top_pages['chart_data'])); ?>"></div>
 					</div>
 
 					<!-- Referral Sources Chart -->
 					<div class="pa-chart-container">
-						<h2><?php echo esc_html__('Referral Sources', 'privacy-analytics-lite'); ?></h2>
+						<h2>
+							<?php echo esc_html__('Referral Sources', 'privacy-analytics-lite'); ?>
+						</h2>
 						<div id="pa-referrer-chart" class="pa-chart"
 							data-chart-data="<?php echo esc_attr(wp_json_encode($referrer_stats['chart_data'])); ?>"></div>
 					</div>
@@ -278,13 +326,17 @@ class Dashboard
 				<div class="pa-tables-grid">
 					<!-- Top Pages Table -->
 					<div class="pa-table-container">
-						<h2><?php echo esc_html__('Top Pages', 'privacy-analytics-lite'); ?></h2>
+						<h2>
+							<?php echo esc_html__('Top Pages', 'privacy-analytics-lite'); ?>
+						</h2>
 						<?php $this->render_top_pages_table($top_pages['table_data']); ?>
 					</div>
 
 					<!-- Referrer Sources Table -->
 					<div class="pa-table-container">
-						<h2><?php echo esc_html__('Referral Sources', 'privacy-analytics-lite'); ?></h2>
+						<h2>
+							<?php echo esc_html__('Referral Sources', 'privacy-analytics-lite'); ?>
+						</h2>
 						<?php $this->render_referrer_table($referrer_stats['table_data']); ?>
 					</div>
 				</div>
@@ -292,12 +344,16 @@ class Dashboard
 				<!-- Device Tables -->
 				<div class="pa-tables-grid">
 					<div class="pa-table-container">
-						<h2><?php echo esc_html__('Device Types', 'privacy-analytics-lite'); ?></h2>
+						<h2>
+							<?php echo esc_html__('Device Types', 'privacy-analytics-lite'); ?>
+						</h2>
 						<?php $this->render_device_table($device_stats['table_data']); ?>
 					</div>
 
 					<div class="pa-table-container">
-						<h2><?php echo esc_html__('Operating Systems', 'privacy-analytics-lite'); ?></h2>
+						<h2>
+							<?php echo esc_html__('Operating Systems', 'privacy-analytics-lite'); ?>
+						</h2>
 						<?php $this->render_os_table($os_stats['table_data']); ?>
 					</div>
 				</div>
@@ -306,22 +362,32 @@ class Dashboard
 			<!-- Heatmaps Tab -->
 			<div id="view-heatmaps" class="pa-tab-content" style="display: none; padding-top: 20px;">
 				<div class="card pa-card">
-					<h2><?php echo esc_html__('Manage Heatmap Tracking', 'privacy-analytics-lite'); ?></h2>
-					<p><?php echo esc_html__('Enable heatmaps for specific pages. To keep your database lite, only track pages you are actively analyzing. Tracking uses a privacy-safe grid system.', 'privacy-analytics-lite'); ?>
+					<h2>
+						<?php echo esc_html__('Manage Heatmap Tracking', 'privacy-analytics-lite'); ?>
+					</h2>
+					<p>
+						<?php echo esc_html__('Enable heatmaps for specific pages. To keep your database lite, only track pages you are actively analyzing. Tracking uses a privacy-safe grid system.', 'privacy-analytics-lite'); ?>
 					</p>
 
 					<table class="wp-list-table widefat fixed striped">
 						<thead>
 							<tr>
-								<th><?php echo esc_html__('Page Path', 'privacy-analytics-lite'); ?></th>
-								<th><?php echo esc_html__('Status', 'privacy-analytics-lite'); ?></th>
-								<th><?php echo esc_html__('Action', 'privacy-analytics-lite'); ?></th>
+								<th>
+									<?php echo esc_html__('Page Path', 'privacy-analytics-lite'); ?>
+								</th>
+								<th>
+									<?php echo esc_html__('Status', 'privacy-analytics-lite'); ?>
+								</th>
+								<th>
+									<?php echo esc_html__('Action', 'privacy-analytics-lite'); ?>
+								</th>
 							</tr>
 						</thead>
 						<tbody>
 							<?php if (empty($tracked_pages)): ?>
 								<tr>
-									<td colspan="3"><?php echo esc_html__('No pages tracked yet.', 'privacy-analytics-lite'); ?>
+									<td colspan="3">
+										<?php echo esc_html__('No pages tracked yet.', 'privacy-analytics-lite'); ?>
 									</td>
 								</tr>
 							<?php else: ?>
@@ -372,7 +438,9 @@ class Dashboard
 			<div class="pa-modal-overlay">
 				<div class="pa-modal">
 					<div class="pa-modal-header">
-						<h2><?php echo esc_html__('What\'s New', 'privacy-analytics-lite'); ?></h2>
+						<h2>
+							<?php echo esc_html__('What\'s New', 'privacy-analytics-lite'); ?>
+						</h2>
 						<button id="pa-modal-close" class="pa-modal-close">&times;</button>
 					</div>
 					<div class="pa-modal-content">
@@ -466,6 +534,108 @@ class Dashboard
 			'device_stats' => $device_stats,
 			'os_stats' => $os_stats,
 		));
+	}
+
+
+
+	/**
+	 * Export statistics report to CSV.
+	 *
+	 * @return void
+	 */
+	public function ajax_export_report(): void
+	{
+		// Check capability.
+		if (!current_user_can('manage_options')) {
+			wp_die(esc_html__('You do not have sufficient permissions to access this page.', 'privacy-analytics-lite'));
+		}
+
+		// Get date range from request.
+		$date_start = isset($_GET['date_start']) ? sanitize_text_field(wp_unslash($_GET['date_start'])) : '';
+		$date_end = isset($_GET['date_end']) ? sanitize_text_field(wp_unslash($_GET['date_end'])) : '';
+
+		// Validate dates.
+		if (!$date_start || !$date_end) {
+			// Fallback to last 30 days.
+			$date_end = current_time('Y-m-d');
+			$date_start = date('Y-m-d', strtotime('-29 days', strtotime($date_end)));
+		}
+
+		// Fetch relevant stats for report.
+		$summary_stats = $this->get_summary_stats($date_start, $date_end);
+		$daily_trends = $this->get_daily_trends($date_start, $date_end);
+		$top_pages = $this->get_top_pages($date_start, $date_end);
+		$referrer_stats = $this->get_referrer_stats($date_start, $date_end);
+
+		// Set headers for download.
+		$filename = 'privacy-analytics-report-' . $date_start . '-to-' . $date_end . '.csv';
+		header('Content-Type: text/csv');
+		header('Content-Disposition: attachment; filename="' . $filename . '"');
+		header('Pragma: no-cache');
+		header('Expires: 0');
+
+		$output = fopen('php://output', 'w');
+
+		// Header Section
+		fputcsv($output, array('Privacy Analytics Report'));
+		fputcsv($output, array('Generated on', current_time('Y-m-d H:i:s')));
+		fputcsv($output, array('Period', $date_start . ' to ' . $date_end));
+		fputcsv($output, array('')); // Empty line
+
+		// Summary Stats
+		fputcsv($output, array('Summary Statistics'));
+		fputcsv($output, array('Metric', 'Value'));
+		fputcsv($output, array('Total Hits', $summary_stats['total_hits']));
+		fputcsv($output, array('Unique Visitors', $summary_stats['unique_visitors']));
+		fputcsv($output, array(''));
+
+		// Daily Trends
+		fputcsv($output, array('Daily Trends'));
+		fputcsv($output, array('Date', 'Page Views', 'Unique Visitors'));
+		if (isset($daily_trends['labels']) && isset($daily_trends['datasets'])) {
+			$labels = $daily_trends['labels'];
+			$hits = $daily_trends['datasets'][0]['values'];
+			$visitors = $daily_trends['datasets'][1]['values'];
+
+			foreach ($labels as $index => $date) {
+				fputcsv($output, array(
+					$date,
+					$hits[$index] ?? 0,
+					$visitors[$index] ?? 0
+				));
+			}
+		}
+		fputcsv($output, array(''));
+
+		// Top Pages
+		fputcsv($output, array('Top Pages'));
+		fputcsv($output, array('Page Path', 'Page Views', 'Unique Visitors'));
+		if (isset($top_pages['table_data'])) {
+			foreach ($top_pages['table_data'] as $row) {
+				fputcsv($output, array(
+					$row['page_path'],
+					$row['total_hits'],
+					$row['total_visitors']
+				));
+			}
+		}
+		fputcsv($output, array(''));
+
+		// Referrers
+		fputcsv($output, array('Referral Sources'));
+		fputcsv($output, array('Source', 'Page Views', 'Unique Visitors'));
+		if (isset($referrer_stats['table_data'])) {
+			foreach ($referrer_stats['table_data'] as $row) {
+				fputcsv($output, array(
+					$row['source'] ?: 'Direct',
+					$row['total_hits'],
+					$row['total_visitors']
+				));
+			}
+		}
+
+		fclose($output);
+		exit;
 	}
 
 	/**
@@ -987,17 +1157,29 @@ class Dashboard
 		<table class="wp-list-table widefat fixed striped">
 			<thead>
 				<tr>
-					<th><?php echo esc_html__('Page Path', 'privacy-analytics-lite'); ?></th>
-					<th><?php echo esc_html__('Hits', 'privacy-analytics-lite'); ?></th>
-					<th><?php echo esc_html__('Unique Visitors', 'privacy-analytics-lite'); ?></th>
+					<th>
+						<?php echo esc_html__('Page Path', 'privacy-analytics-lite'); ?>
+					</th>
+					<th>
+						<?php echo esc_html__('Hits', 'privacy-analytics-lite'); ?>
+					</th>
+					<th>
+						<?php echo esc_html__('Unique Visitors', 'privacy-analytics-lite'); ?>
+					</th>
 				</tr>
 			</thead>
 			<tbody>
 				<?php foreach ($data as $row): ?>
 					<tr>
-						<td><?php echo esc_html($row['page_path'] ?? ''); ?></td>
-						<td><?php echo esc_html(number_format_i18n($row['total_hits'] ?? 0)); ?></td>
-						<td><?php echo esc_html(number_format_i18n($row['total_visitors'] ?? 0)); ?></td>
+						<td>
+							<?php echo esc_html($row['page_path'] ?? ''); ?>
+						</td>
+						<td>
+							<?php echo esc_html(number_format_i18n($row['total_hits'] ?? 0)); ?>
+						</td>
+						<td>
+							<?php echo esc_html(number_format_i18n($row['total_visitors'] ?? 0)); ?>
+						</td>
 					</tr>
 				<?php endforeach; ?>
 			</tbody>
@@ -1022,17 +1204,29 @@ class Dashboard
 		<table class="wp-list-table widefat fixed striped">
 			<thead>
 				<tr>
-					<th><?php echo esc_html__('Source', 'privacy-analytics-lite'); ?></th>
-					<th><?php echo esc_html__('Hits', 'privacy-analytics-lite'); ?></th>
-					<th><?php echo esc_html__('Unique Visitors', 'privacy-analytics-lite'); ?></th>
+					<th>
+						<?php echo esc_html__('Source', 'privacy-analytics-lite'); ?>
+					</th>
+					<th>
+						<?php echo esc_html__('Hits', 'privacy-analytics-lite'); ?>
+					</th>
+					<th>
+						<?php echo esc_html__('Unique Visitors', 'privacy-analytics-lite'); ?>
+					</th>
 				</tr>
 			</thead>
 			<tbody>
 				<?php foreach ($data as $row): ?>
 					<tr>
-						<td><?php echo esc_html($row['source'] ?? 'Direct'); ?></td>
-						<td><?php echo esc_html(number_format_i18n($row['total_hits'] ?? 0)); ?></td>
-						<td><?php echo esc_html(number_format_i18n($row['total_visitors'] ?? 0)); ?></td>
+						<td>
+							<?php echo esc_html($row['source'] ?? 'Direct'); ?>
+						</td>
+						<td>
+							<?php echo esc_html(number_format_i18n($row['total_hits'] ?? 0)); ?>
+						</td>
+						<td>
+							<?php echo esc_html(number_format_i18n($row['total_visitors'] ?? 0)); ?>
+						</td>
 					</tr>
 				<?php endforeach; ?>
 			</tbody>
@@ -1067,9 +1261,11 @@ class Dashboard
 					<span class="dashicons dashicons-sparkles"></span>
 				</div>
 				<div class="pa-notice-text">
-					<h3><?php echo esc_html(sprintf(__('Updated to version %s!', 'privacy-analytics-lite'), $new_version)); ?>
+					<h3>
+						<?php echo esc_html(sprintf(__('Updated to version %s!', 'privacy-analytics-lite'), $new_version)); ?>
 					</h3>
-					<p><?php echo esc_html__('Welcome back! We\'ve polished your analytics dashboard.', 'privacy-analytics-lite'); ?>
+					<p>
+						<?php echo esc_html__('Welcome back! We\'ve polished your analytics dashboard.', 'privacy-analytics-lite'); ?>
 					</p>
 				</div>
 			</div>
@@ -1101,7 +1297,8 @@ class Dashboard
 		<div class="pa-modal-overlay">
 			<div class="pa-modal">
 				<div class="pa-modal-header">
-					<h2><?php echo esc_html(sprintf(__('Version %s Release Notes', 'privacy-analytics-lite'), $version)); ?>
+					<h2>
+						<?php echo esc_html(sprintf(__('Version %s Release Notes', 'privacy-analytics-lite'), $version)); ?>
 					</h2>
 				</div>
 				<div class="pa-modal-body">
@@ -1110,7 +1307,9 @@ class Dashboard
 							<?php echo wp_kses_post($changelog); ?>
 						</div>
 					<?php else: ?>
-						<p><?php echo esc_html__('No release notes found for this version.', 'privacy-analytics-lite'); ?></p>
+						<p>
+							<?php echo esc_html__('No release notes found for this version.', 'privacy-analytics-lite'); ?>
+						</p>
 					<?php endif; ?>
 				</div>
 				<div class="pa-modal-footer">
@@ -1351,17 +1550,29 @@ class Dashboard
 		<table class="wp-list-table widefat fixed striped">
 			<thead>
 				<tr>
-					<th><?php echo esc_html__('Device Type', 'privacy-analytics-lite'); ?></th>
-					<th><?php echo esc_html__('Hits', 'privacy-analytics-lite'); ?></th>
-					<th><?php echo esc_html__('Visitors', 'privacy-analytics-lite'); ?></th>
+					<th>
+						<?php echo esc_html__('Device Type', 'privacy-analytics-lite'); ?>
+					</th>
+					<th>
+						<?php echo esc_html__('Hits', 'privacy-analytics-lite'); ?>
+					</th>
+					<th>
+						<?php echo esc_html__('Visitors', 'privacy-analytics-lite'); ?>
+					</th>
 				</tr>
 			</thead>
 			<tbody>
 				<?php foreach ($data as $row): ?>
 					<tr>
-						<td><?php echo esc_html($row['type']); ?></td>
-						<td><?php echo esc_html(number_format_i18n($row['hits'])); ?></td>
-						<td><?php echo esc_html(number_format_i18n($row['visitors'])); ?></td>
+						<td>
+							<?php echo esc_html($row['type']); ?>
+						</td>
+						<td>
+							<?php echo esc_html(number_format_i18n($row['hits'])); ?>
+						</td>
+						<td>
+							<?php echo esc_html(number_format_i18n($row['visitors'])); ?>
+						</td>
 					</tr>
 				<?php endforeach; ?>
 			</tbody>
@@ -1382,17 +1593,29 @@ class Dashboard
 		<table class="wp-list-table widefat fixed striped">
 			<thead>
 				<tr>
-					<th><?php echo esc_html__('Operating System', 'privacy-analytics-lite'); ?></th>
-					<th><?php echo esc_html__('Hits', 'privacy-analytics-lite'); ?></th>
-					<th><?php echo esc_html__('Visitors', 'privacy-analytics-lite'); ?></th>
+					<th>
+						<?php echo esc_html__('Operating System', 'privacy-analytics-lite'); ?>
+					</th>
+					<th>
+						<?php echo esc_html__('Hits', 'privacy-analytics-lite'); ?>
+					</th>
+					<th>
+						<?php echo esc_html__('Visitors', 'privacy-analytics-lite'); ?>
+					</th>
 				</tr>
 			</thead>
 			<tbody>
 				<?php foreach ($data as $row): ?>
 					<tr>
-						<td><?php echo esc_html($row['os']); ?></td>
-						<td><?php echo esc_html(number_format_i18n($row['hits'])); ?></td>
-						<td><?php echo esc_html(number_format_i18n($row['visitors'])); ?></td>
+						<td>
+							<?php echo esc_html($row['os']); ?>
+						</td>
+						<td>
+							<?php echo esc_html(number_format_i18n($row['hits'])); ?>
+						</td>
+						<td>
+							<?php echo esc_html(number_format_i18n($row['visitors'])); ?>
+						</td>
 					</tr>
 				<?php endforeach; ?>
 			</tbody>

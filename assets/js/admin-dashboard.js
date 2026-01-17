@@ -37,6 +37,7 @@
 
 		// Initialize UI controls
 		initDateControls();
+		initExportButton();
 
 		// Initialize Daily Trends Chart (Line Chart).
 		initDailyTrendsChart();
@@ -252,6 +253,28 @@
 				}
 			});
 		}
+	}
+
+	/**
+	 * Initialize export report button.
+	 */
+	function initExportButton() {
+		const exportBtn = document.getElementById('pa-export-report-btn');
+		if (!exportBtn) return;
+
+		exportBtn.addEventListener('click', function () {
+			if (typeof ajaxurl === 'undefined') return;
+
+			// Construct export URL
+			const params = new URLSearchParams({
+				action: 'privacy_analytics_export_report',
+				date_start: currentDateRange.start,
+				date_end: currentDateRange.end
+			});
+
+			// Trigger download
+			window.location.href = ajaxurl + '?' + params.toString();
+		});
 	}
 
 	/**
