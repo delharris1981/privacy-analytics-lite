@@ -5,6 +5,16 @@ All notable changes to Privacy-First Analytics Lite will be documented in this f
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.7.1] - 2026-01-17
+### Security
+- **CWE-916 Additional Fixes**: Upgraded remaining weak hash algorithms to SHA-256
+  - **File Checksums**: Upgraded from MD5 to SHA-256 for embedded file integrity checks in `Cpdf.php` and `CPdf.php`
+  - **File Identifiers**: Upgraded from MD5 to SHA-256 for unique file ID generation in `Cpdf.php` and `CPdf.php`
+  
+### Technical Notes
+- `md5_16()` functions retained as they are **required** by the PDF specification (ISO 32000-1) for RC4 encryption compatibility
+- `thecodingmachine/safe` wrappers in vendor files are documented as false positives
+
 ## [1.7.0] - 2026-01-17
 ### Security
 - **CWE-916 Mitigation (Low Priority)**: Upgraded weak cryptographic hash algorithms to SHA-256 for cache key generation and file checksums

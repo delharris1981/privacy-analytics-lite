@@ -3097,7 +3097,8 @@ EOT;
                 $created = "D:" . substr_replace(date('YmdHisO', filectime($info['filepath'])), '\'', -2, 0) . '\'';
                 $modified = "D:" . substr_replace(date('YmdHisO', filemtime($info['filepath'])), '\'', -2, 0) . '\'';
                 $file_size = mb_strlen($file_content, '8bit');
-                $checksum = md5($file_content);
+                // CWE-916: Upgraded from MD5 to SHA-256 for file checksum
+                $checksum = hash('sha256', $file_content);
                 if ($this->compressionReady && $this->options['compression']) {
                     $blocks = str_split($file_content, 8192);
                     $file_content = '';
@@ -3493,7 +3494,8 @@ EOT;
 
         if ($this->fileIdentifier === '') {
             $tmp = implode('', $this->objects[$this->infoObject]['info']);
-            $this->fileIdentifier = md5('DOMPDF' . __FILE__ . $tmp . microtime() . mt_rand());
+            // CWE-916: Upgraded from MD5 to SHA-256 for file identifier generation
+            $this->fileIdentifier = hash('sha256', 'DOMPDF' . __FILE__ . $tmp . microtime() . mt_rand());
         }
 
         if ($this->arc4_objnum) {

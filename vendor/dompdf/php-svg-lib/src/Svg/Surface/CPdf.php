@@ -2902,7 +2902,8 @@ EOT;
                 } else {
                     $file_content = file_get_contents($info['filepath']);
                     $file_size_uncompressed = mb_strlen($file_content, '8bit');
-                    $checksum = md5($file_content);
+                    // CWE-916: Upgraded from MD5 to SHA-256 for file checksum
+                    $checksum = hash('sha256', $file_content);
                 }
 
                 if ($this->encrypted) {
@@ -3133,7 +3134,8 @@ EOT;
 
         if ($this->fileIdentifier === '') {
             $tmp = implode('', $this->objects[$this->infoObject]['info']);
-            $this->fileIdentifier = md5('DOMPDF' . __FILE__ . $tmp . microtime() . mt_rand());
+            // CWE-916: Upgraded from MD5 to SHA-256 for file identifier generation
+            $this->fileIdentifier = hash('sha256', 'DOMPDF' . __FILE__ . $tmp . microtime() . mt_rand());
         }
 
         if ($this->arc4_objnum) {
@@ -4282,7 +4284,8 @@ EOT;
         $font = array_filter(
             $this->objects[$this->currentNode]['info']['fonts'],
             function ($item) use ($currentFontNum) {
-                return $item['fontNum'] == $currentFontNum; }
+                return $item['fontNum'] == $currentFontNum;
+            }
         );
 
         $this->o_acroform(
