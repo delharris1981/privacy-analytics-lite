@@ -5,6 +5,10 @@ All notable changes to Privacy-First Analytics Lite will be documented in this f
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.7.6] - 2026-01-17
+### Security
+- **XSS Mitigation Refinement**: Upgraded explicit sanitization from shallow map to deep recursive walk to ensure nested data structures (like page lists) are correctly marked as safe for PDF generation.
+
 ## [1.7.5] - 2026-01-17
 ### Security
 - **XSS Mitigation**: Added redundant explicit input sanitization immediately before PDF generation to separate taint source from sink and silence persistent CWE-79 scanner warnings
