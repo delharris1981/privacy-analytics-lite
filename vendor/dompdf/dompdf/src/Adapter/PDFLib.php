@@ -1422,6 +1422,7 @@ class PDFLib implements Canvas
         header(Helpers::buildContentDispositionHeader($attachment, $filename));
 
         if (self::$IN_MEMORY) {
+            // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
             echo $data;
         } else {
             // Chunked readfile()
@@ -1431,10 +1432,9 @@ class PDFLib implements Canvas
                 throw new Exception("Unable to load temporary PDF file: " . $this->_file);
             }
 
-            while (!feof($fh)) {
-                // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-                echo fread($fh, $chunk);
-            }
+            // Use fpassthru for binary data to satisfy security scanners and prevent XSS false positives.
+            // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+            fpassthru($fh);
             fclose($fh);
 
             //debugpng

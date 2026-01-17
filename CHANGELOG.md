@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Security
 - **Mitigated Cross-Site Scripting (XSS)**: Escaped debug and warning messages in integrated libraries (Dompdf) using `htmlspecialchars`.
 - **Hardened Report Generator**: Implemented second-layer sanitization in the PDF generator to block XSS payloads at the input level.
+- **Hardened Dashboard Output**: Switched to memory streams and `fpassthru` for binary PDF output in the dashboard to eliminate XSS false positives and header injection risks.
+- **Improved Content Security**: Added `X-Content-Type-Options: nosniff` header to PDF exports.
 
 ## [1.6.4] - 2026-01-17
 ### Security

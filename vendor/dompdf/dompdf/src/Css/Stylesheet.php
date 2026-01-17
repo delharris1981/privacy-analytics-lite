@@ -1141,7 +1141,7 @@ class Stylesheet
 
                 if ($DEBUGCSS) {
                     $debug_nodename = $frame->get_node()->nodeName;
-                    print "<pre>\n$debug_nodename [\n";
+                    print "<pre>\n" . htmlspecialchars($debug_nodename, ENT_QUOTES, 'UTF-8') . " [\n";
                     foreach ($applied_styles as $spec => $arr) {
                         printf("  specificity 0x%08x\n", $spec);
                         /** @var Style $s */
@@ -1518,8 +1518,8 @@ EOL;
         if ($DEBUGCSS) {
             $parsed_url = Helpers::explode_url($path);
             print "<pre>[_image\n";
-            print_r($parsed_url);
-            print $this->_protocol . "\n" . $this->_base_path . "\n" . $path . "\n";
+            print htmlspecialchars(print_r($parsed_url, true), ENT_QUOTES, 'UTF-8');
+            print htmlspecialchars($this->_protocol, ENT_QUOTES, 'UTF-8') . "\n" . htmlspecialchars($this->_base_path, ENT_QUOTES, 'UTF-8') . "\n" . htmlspecialchars($path, ENT_QUOTES, 'UTF-8') . "\n";
             print "_image]</pre>";
         }
         return $path;
@@ -1748,7 +1748,7 @@ EOL;
             $i = strpos($prop, ":");
             if ($i === false) {
                 if ($DEBUGCSS) {
-                    print "(novalue $prop)";
+                    print "(novalue " . htmlspecialchars($prop, ENT_QUOTES, 'UTF-8') . ")";
                 }
                 continue;
             }
@@ -1762,7 +1762,7 @@ EOL;
             }
 
             if ($DEBUGCSS) {
-                print "($prop_name:=$value" . ($important ? " !IMPORTANT" : "") . ")";
+                print "(" . htmlspecialchars($prop_name, ENT_QUOTES, 'UTF-8') . ":=" . htmlspecialchars($value, ENT_QUOTES, 'UTF-8') . ($important ? " !IMPORTANT" : "") . ")";
             }
 
             $style->set_prop($prop_name, $value, $important, false);
@@ -1815,7 +1815,7 @@ EOL;
                     continue;
                 }
                 if ($DEBUGCSS)
-                    print '#' . $selector . '#';
+                    print '#' . htmlspecialchars($selector, ENT_QUOTES, 'UTF-8') . '#';
                 //if ($DEBUGCSS) { if (strpos($selector,'p') !== false) print '!!!p!!!#'; }
 
                 //FIXME: tag the selector with a hash of the media query to separate it from non-conditional styles (?), xpath comments are probably not what we want to do here
