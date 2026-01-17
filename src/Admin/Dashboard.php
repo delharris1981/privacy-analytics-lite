@@ -675,6 +675,8 @@ class Dashboard
 		$daily_trends = $this->get_daily_trends($date_start, $date_end);
 		$top_pages = $this->get_top_pages($date_start, $date_end);
 		$referrer_stats = $this->get_referrer_stats($date_start, $date_end);
+		$device_stats = $this->get_device_stats($date_start, $date_end);
+		$os_stats = $this->get_os_stats($date_start, $date_end);
 
 		// Prepare data for generator.
 		$data = array(
@@ -683,6 +685,8 @@ class Dashboard
 			'summary' => $summary_stats,
 			'top_pages' => $top_pages,
 			'referrers' => $referrer_stats,
+			'devices' => $device_stats,
+			'os' => $os_stats,
 		);
 
 		// Generate PDF.

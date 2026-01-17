@@ -56,6 +56,8 @@ class PdfReportGenerator
         $summary = $data['summary'] ?? [];
         $top_pages = $data['top_pages'] ?? [];
         $referrers = $data['referrers'] ?? [];
+        $devices = $data['devices'] ?? [];
+        $os = $data['os'] ?? [];
 
         ob_start();
         ?>
@@ -157,6 +159,77 @@ class PdfReportGenerator
                                     </td>
                                     <td>
                                         <?php echo number_format_i18n($row['total_visitors']); ?>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <tr>
+                                <td colspan="3">No data available.</td>
+                            </tr>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
+                </table>
+            </div>
+
+            <div class="page-break"></div>
+
+            <div class="section">
+                <h2>Device Types</h2>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Device Type</th>
+                            <th>Views</th>
+                            <th>Visitors</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php if (!empty($devices['table_data'])): ?>
+                            <?php foreach ($devices['table_data'] as $row): ?>
+                                <tr>
+                                    <td>
+                                        <?php echo esc_html(ucfirst($row['type'])); ?>
+                                    </td>
+                                    <td>
+                                        <?php echo number_format_i18n($row['hits']); ?>
+                                    </td>
+                                    <td>
+                                        <?php echo number_format_i18n($row['visitors']); ?>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <tr>
+                                <td colspan="3">No data available.</td>
+                            </tr>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="section">
+                <h2>Operating Systems</h2>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>OS</th>
+                            <th>Views</th>
+                            <th>Visitors</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php if (!empty($os['table_data'])): ?>
+                            <?php foreach ($os['table_data'] as $row): ?>
+                                <tr>
+                                    <td>
+                                        <?php echo esc_html($row['os']); ?>
+                                    </td>
+                                    <td>
+                                        <?php echo number_format_i18n($row['hits']); ?>
+                                    </td>
+                                    <td>
+                                        <?php echo number_format_i18n($row['visitors']); ?>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
