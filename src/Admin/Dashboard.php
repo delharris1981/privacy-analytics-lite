@@ -687,9 +687,14 @@ class Dashboard
 		);
 
 		// Generate PDF.
+		// Generate PDF.
 		try {
 			if (!class_exists(PdfReportGenerator::class)) {
 				throw new \Exception('PDF Generator class not found. Please run composer update.');
+			}
+
+			if (!class_exists('Dompdf\Dompdf')) {
+				throw new \Exception('Dompdf library not found. Please run "composer update" in the plugin directory.');
 			}
 
 			$generator = new PdfReportGenerator();
@@ -703,7 +708,7 @@ class Dashboard
 			header('Expires: 0');
 
 			echo $pdf_content;
-		} catch (\Exception $e) {
+		} catch (\Throwable $e) {
 			wp_die('Error generating PDF: ' . esc_html($e->getMessage()));
 		}
 
