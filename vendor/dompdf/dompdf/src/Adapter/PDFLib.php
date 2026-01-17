@@ -59,22 +59,22 @@ class PDFLib implements Canvas
      * @var array
      */
     public static $nativeFontsToPDFLib = [
-        "courier"               => "Courier",
-        "courier-bold"          => "Courier-Bold",
-        "courier-oblique"       => "Courier-Oblique",
-        "courier-boldoblique"   => "Courier-BoldOblique",
-        "helvetica"             => "Helvetica",
-        "helvetica-bold"        => "Helvetica-Bold",
-        "helvetica-oblique"     => "Helvetica-Oblique",
+        "courier" => "Courier",
+        "courier-bold" => "Courier-Bold",
+        "courier-oblique" => "Courier-Oblique",
+        "courier-boldoblique" => "Courier-BoldOblique",
+        "helvetica" => "Helvetica",
+        "helvetica-bold" => "Helvetica-Bold",
+        "helvetica-oblique" => "Helvetica-Oblique",
         "helvetica-boldoblique" => "Helvetica-BoldOblique",
-        "times"                 => "Times-Roman",
-        "times-roman"           => "Times-Roman",
-        "times-bold"            => "Times-Bold",
-        "times-italic"          => "Times-Italic",
-        "times-bolditalic"      => "Times-BoldItalic",
-        "symbol"                => "Symbol",
-        "zapfdinbats"           => "ZapfDingbats",
-        "zapfdingbats"          => "ZapfDingbats",
+        "times" => "Times-Roman",
+        "times-roman" => "Times-Roman",
+        "times-bold" => "Times-Bold",
+        "times-italic" => "Times-Italic",
+        "times-bolditalic" => "Times-BoldItalic",
+        "symbol" => "Symbol",
+        "zapfdinbats" => "ZapfDingbats",
+        "zapfdingbats" => "ZapfDingbats",
     ];
 
     /**
@@ -415,7 +415,8 @@ class PDFLib implements Canvas
         $where = $this->_objs[$object]["where"];
 
         // Place the object on this page if required
-        if ($this->_page_number >= $start &&
+        if (
+            $this->_page_number >= $start &&
             (($this->_page_number % 2 == 0 && $where === "even") ||
                 ($this->_page_number % 2 == 1 && $where === "odd") ||
                 ($where === "all"))
@@ -438,7 +439,8 @@ class PDFLib implements Canvas
             $where = $props["where"];
 
             // Place the object on this page if required
-            if ($this->_page_number >= $start &&
+            if (
+                $this->_page_number >= $start &&
                 (($this->_page_number % 2 == 0 && $where === "even") ||
                     ($this->_page_number % 2 == 1 && $where === "odd") ||
                     ($where === "all"))
@@ -473,12 +475,12 @@ class PDFLib implements Canvas
      */
     public function set_page_number($num)
     {
-        $this->_page_number = (int)$num;
+        $this->_page_number = (int) $num;
     }
 
     public function set_page_count($count)
     {
-        $this->_page_count = (int)$count;
+        $this->_page_count = (int) $count;
     }
 
     /**
@@ -940,7 +942,7 @@ class PDFLib implements Canvas
         if ($rTL > 0) {
             $path = $this->_pdf->add_path_point($path, 0, 0 - $rTL + $h, "elliptical", "radius=$rTL clockwise=false");
         }
-        $this->_pdf->draw_path($path, $x1, $this->_height-$y1-$h, "clip=true");
+        $this->_pdf->draw_path($path, $x1, $this->_height - $y1 - $h, "clip=true");
     }
 
     public function clipping_polygon(array $points): void
@@ -1077,7 +1079,7 @@ class PDFLib implements Canvas
         if ($filename !== null && file_exists($filename)) {
             return $filename;
         }
- 
+
         $func_name = "imagecreatefrom$type";
 
         set_error_handler([Helpers::class, "record_warnings"]);
@@ -1119,8 +1121,8 @@ class PDFLib implements Canvas
 
     public function image($img, $x, $y, $w, $h, $resolution = "normal")
     {
-        $w = (int)$w;
-        $h = (int)$h;
+        $w = (int) $w;
+        $h = (int) $h;
 
         $img_type = Cache::detect_type($img, $this->get_dompdf()->getHttpContext());
 
@@ -1193,9 +1195,9 @@ class PDFLib implements Canvas
 
         $y = $this->y($y) - $this->get_font_height($font, $size);
 
-        $word_spacing = (float)$word_spacing;
-        $char_spacing = (float)$char_spacing;
-        $angle = -(float)$angle;
+        $word_spacing = (float) $word_spacing;
+        $char_spacing = (float) $char_spacing;
+        $angle = -(float) $angle;
 
         $this->_pdf->fit_textline($text, $x, $y, "rotate=$angle wordspacing=$word_spacing charspacing=$char_spacing ");
 
@@ -1221,8 +1223,14 @@ class PDFLib implements Canvas
             // Local link
             $name = substr($url, 1);
             if ($name) {
-                $this->_pdf->create_annotation($x, $y, $x + $width, $y + $height, 'Link',
-                    "contents={$url} destname=" . substr($url, 1) . " linewidth=0");
+                $this->_pdf->create_annotation(
+                    $x,
+                    $y,
+                    $x + $width,
+                    $y + $height,
+                    'Link',
+                    "contents={$url} destname=" . substr($url, 1) . " linewidth=0"
+                );
             }
         } else {
             //TODO: PDFLib::create_action does not permit non-HTTP links for URI actions
@@ -1319,13 +1327,8 @@ class PDFLib implements Canvas
     public function page_script($callback): void
     {
         if (is_string($callback)) {
-            $this->processPageScript(function (
-                int $PAGE_NUM,
-                int $PAGE_COUNT,
-                self $pdf,
-                FontMetrics $fontMetrics
-            ) use ($callback) {
-                eval($callback);
+            $this->processPageScript(function (int $PAGE_NUM, int $PAGE_COUNT, self $pdf, FontMetrics $fontMetrics) use ($callback) {
+                eval ($callback);
             });
             return;
         }
@@ -1429,13 +1432,14 @@ class PDFLib implements Canvas
             }
 
             while (!feof($fh)) {
+                // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
                 echo fread($fh, $chunk);
             }
             fclose($fh);
 
             //debugpng
             if ($this->_dompdf->getOptions()->getDebugPng()) {
-                print '[pdflib stream unlink ' . $this->_file . ']';
+                print '[pdflib stream unlink ' . htmlspecialchars($this->_file, ENT_QUOTES, 'UTF-8') . ']';
             }
             if (!$this->_dompdf->getOptions()->getDebugKeepTemp()) {
                 unlink($this->_file);
@@ -1468,7 +1472,7 @@ class PDFLib implements Canvas
 
             //debugpng
             if ($this->_dompdf->getOptions()->getDebugPng()) {
-                print '[pdflib output unlink ' . $this->_file . ']';
+                print '[pdflib output unlink ' . htmlspecialchars($this->_file, ENT_QUOTES, 'UTF-8') . ']';
             }
             if (!$this->_dompdf->getOptions()->getDebugKeepTemp()) {
                 unlink($this->_file);

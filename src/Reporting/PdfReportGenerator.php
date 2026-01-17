@@ -25,10 +25,13 @@ class PdfReportGenerator
      */
     public function generate(array $data): string
     {
-        // Recursively sanitize all input data to prevent injection/traversal.
+        // Recursively sanitize all input data to prevent injection/traversal/XSS.
         array_walk_recursive($data, function (&$item) {
             if (is_string($item)) {
+                // Remove path traversal markers.
                 $item = str_replace(['..', './', '..\\'], '', $item);
+                // Mitigate XSS by escaping HTML entities at the input level as well.
+                $item = htmlspecialchars($item, ENT_QUOTES, 'UTF-8');
             }
         });
 

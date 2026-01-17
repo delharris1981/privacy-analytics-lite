@@ -5,6 +5,11 @@ All notable changes to Privacy-First Analytics Lite will be documented in this f
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.5] - 2026-01-17
+### Security
+- **Mitigated Cross-Site Scripting (XSS)**: Escaped debug and warning messages in integrated libraries (Dompdf) using `htmlspecialchars`.
+- **Hardened Report Generator**: Implemented second-layer sanitization in the PDF generator to block XSS payloads at the input level.
+
 ## [1.6.4] - 2026-01-17
 ### Security
 - **Hardened Library Paths**: Mitigated Path Traversal (CWE-23) in integrated libraries (Dompdf and HTML5-PHP) by adding direct path sanitization and defensive checks to load/save operations.

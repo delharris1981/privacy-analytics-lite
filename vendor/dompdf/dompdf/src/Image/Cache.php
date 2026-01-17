@@ -251,7 +251,7 @@ class Cache
                 continue;
             }
             if ($debugPng) {
-                print "[clear unlink $file]";
+                print "[clear unlink " . htmlspecialchars($file, ENT_QUOTES, 'UTF-8') . "]";
             }
             if (file_exists($file)) {
                 unlink($file);
@@ -264,7 +264,7 @@ class Cache
                     continue;
                 }
                 if ($debugPng) {
-                    print "[unlink temp image $file]";
+                    print "[unlink temp image " . htmlspecialchars($file, ENT_QUOTES, 'UTF-8') . "]";
                 }
                 if (file_exists($file)) {
                     unlink($file);

@@ -5869,7 +5869,7 @@ EOT;
                     $error = 1;
 
                     if (defined("DEBUGPNG") && DEBUGPNG) {
-                        print '[addPngFromFile this file does not have a valid header ' . $file . ']';
+                        print '[addPngFromFile this file does not have a valid header ' . htmlspecialchars($file, ENT_QUOTES, 'UTF-8') . ']';
                     }
 
                     $errormsg = 'this file does not have a valid header';
@@ -5909,7 +5909,7 @@ EOT;
 
                                 //debugpng
                                 if (defined("DEBUGPNG") && DEBUGPNG) {
-                                    print '[addPngFromFile unsupported compression method ' . $file . ']';
+                                    print '[addPngFromFile unsupported compression method ' . htmlspecialchars($file, ENT_QUOTES, 'UTF-8') . ']';
                                 }
 
                                 $errormsg = 'unsupported compression method';
@@ -5920,7 +5920,7 @@ EOT;
 
                                 //debugpng
                                 if (defined("DEBUGPNG") && DEBUGPNG) {
-                                    print '[addPngFromFile unsupported filter method ' . $file . ']';
+                                    print '[addPngFromFile unsupported filter method ' . htmlspecialchars($file, ENT_QUOTES, 'UTF-8') . ']';
                                 }
 
                                 $errormsg = 'unsupported filter method';
@@ -5992,7 +5992,7 @@ EOT;
                                 //unsupported transparency type
                                 default:
                                     if (defined("DEBUGPNG") && DEBUGPNG) {
-                                        print '[addPngFromFile unsupported transparency type ' . $file . ']';
+                                        print '[addPngFromFile unsupported transparency type ' . htmlspecialchars($file, ENT_QUOTES, 'UTF-8') . ']';
                                     }
                                     break;
                             }
@@ -6012,7 +6012,7 @@ EOT;
 
                     //debugpng
                     if (defined("DEBUGPNG") && DEBUGPNG) {
-                        print '[addPngFromFile information header is missing ' . $file . ']';
+                        print '[addPngFromFile information header is missing ' . htmlspecialchars($file, ENT_QUOTES, 'UTF-8') . ']';
                     }
 
                     $errormsg = 'information header is missing';
@@ -6023,7 +6023,7 @@ EOT;
 
                     //debugpng
                     if (defined("DEBUGPNG") && DEBUGPNG) {
-                        print '[addPngFromFile no support for interlaced images in pdf ' . $file . ']';
+                        print '[addPngFromFile no support for interlaced images in pdf ' . htmlspecialchars($file, ENT_QUOTES, 'UTF-8') . ']';
                     }
 
                     $errormsg = 'There appears to be no support for interlaced images in pdf.';
@@ -6035,7 +6035,7 @@ EOT;
 
                 //debugpng
                 if (defined("DEBUGPNG") && DEBUGPNG) {
-                    print '[addPngFromFile bit depth of 8 or less is supported ' . $file . ']';
+                    print '[addPngFromFile bit depth of 8 or less is supported ' . htmlspecialchars($file, ENT_QUOTES, 'UTF-8') . ']';
                 }
 
                 $errormsg = 'only bit depth of 8 or less is supported';
@@ -6063,7 +6063,7 @@ EOT;
 
                         //debugpng
                         if (defined("DEBUGPNG") && DEBUGPNG) {
-                            print '[addPngFromFile alpha channel not supported: ' . $info['colorType'] . ' ' . $file . ']';
+                            print '[addPngFromFile alpha channel not supported: ' . htmlspecialchars($info['colorType'], ENT_QUOTES, 'UTF-8') . ' ' . htmlspecialchars($file, ENT_QUOTES, 'UTF-8') . ']';
                         }
 
                         $errormsg = 'transparency alpha channel not supported, transparency only supported for palette images.';

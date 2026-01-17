@@ -383,13 +383,13 @@ class Stylesheet
             $options = $this->_dompdf->getOptions();
             $allowed_protocols = $options->getAllowedProtocols();
             if (!array_key_exists($protocol, $allowed_protocols)) {
-                Helpers::record_warnings(E_USER_WARNING, "Permission denied on $file. The communication protocol is not supported.", __FILE__, __LINE__);
+                Helpers::record_warnings(E_USER_WARNING, "Permission denied on " . htmlspecialchars($file, ENT_QUOTES, 'UTF-8') . ". The communication protocol is not supported.", __FILE__, __LINE__);
                 return;
             }
             foreach ($allowed_protocols[$protocol]["rules"] as $rule) {
                 [$result, $message] = $rule($file);
                 if (!$result) {
-                    Helpers::record_warnings(E_USER_WARNING, "Error loading $file: $message", __FILE__, __LINE__);
+                    Helpers::record_warnings(E_USER_WARNING, "Error loading " . htmlspecialchars($file, ENT_QUOTES, 'UTF-8') . ": " . htmlspecialchars($message, ENT_QUOTES, 'UTF-8'), __FILE__, __LINE__);
                     return;
                 }
             }
@@ -413,7 +413,7 @@ class Stylesheet
                 }
             }
             if (!$good_mime_type || $css === null) {
-                Helpers::record_warnings(E_USER_WARNING, "Unable to load css file $file", __FILE__, __LINE__);
+                Helpers::record_warnings(E_USER_WARNING, "Unable to load css file " . htmlspecialchars($file, ENT_QUOTES, 'UTF-8'), __FILE__, __LINE__);
                 return;
             }
 
@@ -466,7 +466,7 @@ class Stylesheet
             /*DEBUGCSS*/
             print "<pre>\n";
             /*DEBUGCSS*/
-            printf("specificity(): 0x%08x \"%s\"\n", self::$_stylesheet_origins[$origin] + (($a << 24) | ($b << 16) | ($c << 8) | ($d)), $selector);
+            printf("specificity(): 0x%08x \"%s\"\n", self::$_stylesheet_origins[$origin] + (($a << 24) | ($b << 16) | ($c << 8) | ($d)), htmlspecialchars($selector, ENT_QUOTES, 'UTF-8'));
             /*DEBUGCSS*/
             print "</pre>";
         }
@@ -1853,7 +1853,8 @@ EOL;
         return preg_replace_callback(
             "/\\\\([0-9a-fA-F]{1,6})\s?/",
             function ($matches) {
-                return Helpers::unichr(hexdec($matches[1])); },
+                return Helpers::unichr(hexdec($matches[1]));
+            },
             $string
         ) ?? "";
     }
