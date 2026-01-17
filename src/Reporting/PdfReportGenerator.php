@@ -54,7 +54,6 @@ class PdfReportGenerator
         $date_start = $data['date_start'] ?? '';
         $date_end = $data['date_end'] ?? '';
         $summary = $data['summary'] ?? [];
-        $daily_trends = $data['daily_trends'] ?? [];
         $top_pages = $data['top_pages'] ?? [];
         $referrers = $data['referrers'] ?? [];
 
@@ -98,11 +97,6 @@ class PdfReportGenerator
                         </td>
                     </tr>
                 </table>
-            </div>
-
-            <div class="section">
-                <h2>Daily Trends (Last 30 Days)</h2>
-                <?php $this->render_bar_chart($daily_trends, 'Date', 'Visits'); ?>
             </div>
 
             <div class="page-break"></div>
@@ -193,44 +187,6 @@ class PdfReportGenerator
      * @param string $y_axis Y-axis label.
      * @return void
      */
-    private function render_bar_chart(array $data, string $x_axis, string $y_axis): void
-    {
-        if (empty($data['labels']) || empty($data['datasets'])) {
-            echo '<p>No data for chart.</p>';
-            return;
-        }
-
-        $labels = $data['labels'];
-        // Assuming datasets[0] contains the primary metric (Hits/Views)
-        $values = $data['datasets'][0]['values'] ?? [];
-        $max_value = !empty($values) ? max($values) : 0;
-        if ($max_value === 0)
-            $max_value = 1; // Prevent division by zero
-
-        echo '<div class="chart-container">';
-        echo '<div class="chart-bars">';
-
-        foreach ($values as $index => $value) {
-            $height_pct = ($value / $max_value) * 100;
-            // Ensure minimal visibility for non-zero values
-            if ($value > 0 && $height_pct < 1)
-                $height_pct = 1;
-
-            $label = $labels[$index] ?? '';
-            // Simplify label if too long (e.g. date)
-            $short_label = substr($label, 0, 5);
-
-            echo '<div class="bar-group">';
-            echo '<div class="bar-value">' . number_format_i18n($value) . '</div>';
-            echo '<div class="bar" style="height: ' . $height_pct . '%;"></div>';
-            echo '<div class="bar-label">' . esc_html($short_label) . '</div>';
-            echo '</div>';
-        }
-
-        echo '</div>'; // chart-bars
-        echo '</div>'; // chart-container
-    }
-
     /**
      * Get CSS styles.
      *
@@ -252,13 +208,6 @@ class PdfReportGenerator
 			
 			.data-table th, .data-table td { font-size: 11px; }
 			.col-path { word-wrap: break-word; max-width: 300px; }
-			
-			.chart-container { margin: 20px 0; height: 200px; width: 100%; position: relative; border-bottom: 1px solid #ccc; padding-bottom: 20px; }
-			.chart-bars { display: table; width: 100%; height: 100%; table-layout: fixed; }
-			.bar-group { display: table-cell; vertical-align: bottom; height: 100%; padding: 0 2px; text-align: center; }
-			.bar { background-color: #2271b1; width: 100%; min-height: 1px; display: block; margin: 0 auto; }
-			.bar-value { font-size: 9px; color: #666; margin-bottom: 2px; }
-			.bar-label { font-size: 9px; color: #666; margin-top: 5px; overflow: hidden; white-space: nowrap; }
 			
 			.page-break { page-break-after: always; }
 			.footer { margin-top: 50px; text-align: center; font-size: 10px; color: #999; border-top: 1px solid #eee; padding-top: 10px; }

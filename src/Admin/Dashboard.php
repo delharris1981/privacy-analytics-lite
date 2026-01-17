@@ -681,7 +681,6 @@ class Dashboard
 			'date_start' => $date_start,
 			'date_end' => $date_end,
 			'summary' => $summary_stats,
-			'daily_trends' => $daily_trends,
 			'top_pages' => $top_pages,
 			'referrers' => $referrer_stats,
 		);
