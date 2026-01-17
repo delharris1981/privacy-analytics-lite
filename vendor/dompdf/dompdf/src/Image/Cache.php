@@ -191,7 +191,9 @@ class Cache
             $resolved_url = self::$broken_image;
             list($width, $height, $type) = Helpers::dompdf_getimagesize($resolved_url, $options->getHttpContext());
             $message = self::$error_message;
-            Helpers::record_warnings($e->getCode(), $e->getMessage() . " \n $url", $e->getFile(), $e->getLine());
+            // CWE-200 mitigation: Use basename to avoid exposing full file paths
+            $safe_url = basename($url);
+            Helpers::record_warnings($e->getCode(), $e->getMessage() . " \n " . htmlspecialchars($safe_url, ENT_QUOTES, 'UTF-8'), $e->getFile(), $e->getLine());
             if ($full_url !== null) {
                 self::$_cache[$full_url] = $resolved_url;
             }
