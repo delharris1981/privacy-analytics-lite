@@ -22,30 +22,31 @@ jobs:
           tools: composer
 
       - name: Install dependencies
-        run: composer install --no-dev --optimize-autoloader
-
-      - name: Prepare Plugin for Zipping
         run: |
-          # Create a temporary directory with the plugin slug
-          PLUGIN_SLUG="privacy-analytics-lite"
-          mkdir -p $PLUGIN_SLUG
-          
-          # Copy necessary files and directories
-          cp -r assets $PLUGIN_SLUG/
-          cp -r src $PLUGIN_SLUG/
-          cp -r vendor $PLUGIN_SLUG/
-          cp privacy-analytics-lite.php $PLUGIN_SLUG/
-          cp README.md $PLUGIN_SLUG/
-          cp CHANGELOG.md $PLUGIN_SLUG/
-          cp composer.json $PLUGIN_SLUG/
-          
-          # Zip the directory
-          zip -r $PLUGIN_SLUG.zip $PLUGIN_SLUG
-          
-          # Clean up temporary directory
-          rm -rf $PLUGIN_SLUG
+          composer install --no-dev --optimize-autoloader
 
-      - name: Create Release
+      - name: Prepare Plugin Bundle
+        run: |
+          PLUGIN_SLUG="privacy-analytics-lite"
+          mkdir -p build/$PLUGIN_SLUG
+          
+          # Copy only the files needed for production
+          cp -r assets build/$PLUGIN_SLUG/
+          cp -r src build/$PLUGIN_SLUG/
+          cp -r vendor build/$PLUGIN_SLUG/
+          cp privacy-analytics-lite.php build/$PLUGIN_SLUG/
+          cp README.md build/$PLUGIN_SLUG/
+          cp CHANGELOG.md build/$PLUGIN_SLUG/
+          
+          # Remove any potential clutter
+          find build/$PLUGIN_SLUG -name ".DS_Store" -delete
+          
+          # Zip it up from the build directory
+          cd build
+          zip -r ../$PLUGIN_SLUG.zip $PLUGIN_SLUG
+          cd ..
+
+      - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
           files: privacy-analytics-lite.zip
