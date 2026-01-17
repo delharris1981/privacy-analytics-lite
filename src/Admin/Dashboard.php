@@ -194,7 +194,12 @@ class Dashboard
 
 					<button type="button" id="pa-export-report-btn" class="button button-secondary" style="margin-left: 10px;">
 						<span class="dashicons dashicons-download" style="margin-top: 4px;"></span>
-						<?php echo esc_html__('Export Report', 'privacy-analytics-lite'); ?>
+						<?php echo esc_html__('Export CSV', 'privacy-analytics-lite'); ?>
+					</button>
+
+					<button type="button" id="pa-export-pdf-btn" class="button button-secondary" style="margin-left: 10px;">
+						<span class="dashicons dashicons-pdf" style="margin-top: 4px;"></span>
+						<?php echo esc_html__('Export PDF', 'privacy-analytics-lite'); ?>
 					</button>
 				</div>
 			</div>
