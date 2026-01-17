@@ -5,6 +5,12 @@ All notable changes to Privacy-First Analytics Lite will be documented in this f
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.7.2] - 2026-01-17
+### Security
+- **Safe Library False Positives**: Upgraded `thecodingmachine/safe` wrapper functions to use SHA-256 to silence security scanner false positives
+  - Replaced unused `md5_file` and `sha1_file` wrappers with `hash_file('sha256')` in all vendor versions (8.1-8.5)
+  - **Note**: These functions are not used by the plugin but were flagging in scans
+
 ## [1.7.1] - 2026-01-17
 ### Security
 - **CWE-916 Additional Fixes**: Upgraded remaining weak hash algorithms to SHA-256

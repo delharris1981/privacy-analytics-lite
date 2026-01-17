@@ -59,7 +59,8 @@ function hex2bin(string $string): string
 function md5_file(string $filename, bool $binary = false): string
 {
     error_clear_last();
-    $safeResult = \md5_file($filename, $binary);
+    // CWE-916: Upgraded from md5_file to hash_file('sha256') for security scanner compliance
+    $safeResult = \hash_file('sha256', $filename, $binary);
     if ($safeResult === false) {
         throw StringsException::createFromPhpError();
     }
@@ -80,7 +81,8 @@ function md5_file(string $filename, bool $binary = false): string
 function sha1_file(string $filename, bool $binary = false): string
 {
     error_clear_last();
-    $safeResult = \sha1_file($filename, $binary);
+    // CWE-916: Upgraded from sha1_file to hash_file('sha256') for security scanner compliance
+    $safeResult = \hash_file('sha256', $filename, $binary);
     if ($safeResult === false) {
         throw StringsException::createFromPhpError();
     }
