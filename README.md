@@ -2,6 +2,10 @@
 
 A privacy-compliant, server-side analytics plugin for WordPress that tracks page views without storing any personally identifiable information (PII), using cookies, or requiring JavaScript.
 
+- Version: 1.6.0
+- Requires at least: 6.8
+- Requires PHP: 8.2
+
 ## Features
 
 ### Privacy-First Design
@@ -26,6 +30,7 @@ A privacy-compliant, server-side analytics plugin for WordPress that tracks page
 - **Key Metrics**: Total hits, unique visitors, top pages, and referral sources
 - **Device Analytics**: Breakdown by device type (Mobile, Tablet, Desktop) and OS
 - **Detailed Charts**: Hourly traffic, daily trends, device distribution, and more
+- **Data Export**: Export your statistics as professional PDF certificates or CSV files
 - **Easy to Use**: Clean, intuitive admin interface
 
 ## Requirements
@@ -53,7 +58,7 @@ composer require privacy-analytics-lite/privacy-analytics-lite
 
 1. Clone or download this repository
 2. Place the `privacy-analytics-lite` folder in your `wp-content/plugins/` directory
-3. Run `composer install` in the plugin directory
+3. Run `composer install` in the plugin directory (if installing via Git)
 4. Activate the plugin through the WordPress admin
 
 ## Usage
@@ -73,6 +78,11 @@ composer require privacy-analytics-lite/privacy-analytics-lite
    - Top pages chart and table
    - Referral sources chart and table
 
+### Exporting Reports
+
+1. Click the **Export CSV** button to download a raw data spreadsheet
+2. Click the **Export PDF** button to generate a professional, branded analytics report for the current date range
+
 ### How It Works
 
 1. **Tracking**: When a visitor views a page, the plugin tracks the visit server-side
@@ -89,8 +99,6 @@ composer require privacy-analytics-lite/privacy-analytics-lite
 - Hit counts and unique visitor counts (anonymized)
 
 ### What We Don't Track
-- IP addresses (only partial IP used for hashing, never stored)
-- Full user agents (only hashed)
 - Personal information
 - Cookies or local storage
 

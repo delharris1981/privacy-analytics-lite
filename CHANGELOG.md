@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.6.0] - 2026-01-17
 ### Added
 - **PDF Export**: Added professional PDF report generation to the dashboard.
+- **CSV Export**: Added easy-to-use CSV data export for spreadsheet analysis.
 - **Reporting**: Include Device Types and Operating System statistics in the PDF report.
 - **Automation**: Implemented GitHub Actions for automatic production bundling and releases.
 
@@ -163,14 +164,3 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Nonce verification for admin actions
 - SQL injection prevention via prepared statements
 - XSS prevention via output escaping
-
-## [Unreleased]
-
-### Added
-- Export functionality for statistics (CSV report)
-- Export functionality for statistics (Professional PDF report)
-
-### Planned Features
-- Additional chart types
-- REST API endpoints for external access
-
