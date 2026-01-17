@@ -5,6 +5,17 @@ All notable changes to Privacy-First Analytics Lite will be documented in this f
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.9] - 2026-01-17
+### Security
+- **CWE-79 Enhancement (High Priority)**: Added enhanced temp file validation for PDF exports with `realpath()` path verification and file size constraints (100 bytes - 50MB) to prevent path traversal and ensure valid PDF output.
+- **CWE-611 Protection (Low Priority)**: Implemented XXE (XML External Entity) injection protection across all XML parsers in vendor libraries. Added explicit `libxml_disable_entity_loader()` calls for PHP < 8.0 as defense-in-depth measure.
+  - Fixed: `vendor/dompdf/dompdf/src/Image/Cache.php` (line 178)
+  - Fixed: `vendor/dompdf/php-svg-lib/src/Svg/Document.php` (lines 156, 257)
+
+### Technical Notes
+- Manual modifications to vendor libraries (Dompdf, php-svg-lib) - may require reapplication after `composer update`
+- XXE protection primarily targets legacy PHP versions; PHP 8.0+ has this protection built-in
+
 ## [1.6.8] - 2026-01-17
 ### Security
 - **CWE-200 Additional Fix**: Sanitized exception file paths in error logging using basename() to prevent exposure of internal server file structure (line 196 of Cache.php).

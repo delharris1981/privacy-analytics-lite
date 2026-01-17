@@ -61,7 +61,8 @@ class Document extends AbstractTag
         $this->filename = $filename;
     }
 
-    protected function initParser() {
+    protected function initParser()
+    {
         $parser = xml_parser_create("utf-8");
         xml_parser_set_option($parser, XML_OPTION_CASE_FOLDING, false);
         xml_set_element_handler(
@@ -77,7 +78,8 @@ class Document extends AbstractTag
         return $parser;
     }
 
-    public function __construct() {
+    public function __construct()
+    {
 
     }
 
@@ -86,7 +88,8 @@ class Document extends AbstractTag
      *
      * @return int
      */
-    public function enterDefs () {
+    public function enterDefs()
+    {
         $this->_defs_depth++;
         $this->inDefs = true;
         return $this->_defs_depth;
@@ -97,7 +100,8 @@ class Document extends AbstractTag
      *
      * @return int
      */
-    public function exitDefs () {
+    public function exitDefs()
+    {
         $this->_defs_depth--;
         if ($this->_defs_depth < 0) {
             $this->_defs_depth = 0;
@@ -131,14 +135,23 @@ class Document extends AbstractTag
 
     public function getDiagonal()
     {
-        return sqrt(($this->width)**2 + ($this->height)**2) / sqrt(2);
+        return sqrt(($this->width) ** 2 + ($this->height) ** 2) / sqrt(2);
     }
 
-    public function getDimensions() {
+    public function getDimensions()
+    {
         $rootAttributes = null;
+
+        // XXE Protection: Disable external entity loading (CWE-611)
+        // Note: PHP 8.0+ disables this by default, but explicit for defense-in-depth
+        if (PHP_VERSION_ID < 80000) {
+            libxml_disable_entity_loader(true);
+        }
 
         $parser = xml_parser_create("utf-8");
         xml_parser_set_option($parser, XML_OPTION_CASE_FOLDING, false);
+        xml_parser_set_option($parser, XML_OPTION_SKIP_WHITE, 1);
+
         xml_set_element_handler(
             $parser,
             function ($parser, $name, $attributes) use (&$rootAttributes) {
@@ -168,11 +181,12 @@ class Document extends AbstractTag
         return $this->handleSizeAttributes($rootAttributes);
     }
 
-    public function handleSizeAttributes($attributes){
+    public function handleSizeAttributes($attributes)
+    {
         if ($this->width === null) {
             if (isset($attributes["width"])) {
                 $width = $this->convertSize($attributes["width"], 400);
-                $this->width  = $width;
+                $this->width = $width;
             }
 
             if (isset($attributes["height"])) {
@@ -197,15 +211,16 @@ class Document extends AbstractTag
         }
 
         return array(
-            0        => $this->width,
-            1        => $this->height,
+            0 => $this->width,
+            1 => $this->height,
 
-            "width"  => $this->width,
+            "width" => $this->width,
             "height" => $this->height,
         );
     }
 
-    public function getDocument(){
+    public function getDocument()
+    {
         return $this;
     }
 
@@ -214,7 +229,8 @@ class Document extends AbstractTag
      *
      * @param \Sabberworm\CSS\CSSList\Document $stylesheet
      */
-    public function appendStyleSheet($stylesheet) {
+    public function appendStyleSheet($stylesheet)
+    {
         $this->styleSheets[] = $stylesheet;
     }
 
@@ -223,7 +239,8 @@ class Document extends AbstractTag
      *
      * @return \Sabberworm\CSS\CSSList\Document[]
      */
-    public function getStyleSheets() {
+    public function getStyleSheets()
+    {
         return $this->styleSheets;
     }
 
@@ -245,6 +262,11 @@ class Document extends AbstractTag
         $this->_defs_depth = 0;
         $this->inDefs = false;
         $this->surface = $surface;
+
+        // XXE Protection: Disable external entity loading before parsing
+        if (PHP_VERSION_ID < 80000) {
+            libxml_disable_entity_loader(true);
+        }
 
         $parser = $this->initParser();
 
@@ -271,7 +293,8 @@ class Document extends AbstractTag
         $this->handleSizeAttributes($attributes);
     }
 
-    public function getDef($id) {
+    public function getDef($id)
+    {
         $id = ltrim($id, "#");
 
         return isset($this->defs[$id]) ? $this->defs[$id] : null;
@@ -294,8 +317,7 @@ class Document extends AbstractTag
             case 'svg':
                 if (count($this->attributes)) {
                     $tag = new Group($this, $name);
-                }
-                else {
+                } else {
                     $tag = $this;
                     $this->svgOffset($attributes);
                 }
@@ -361,7 +383,7 @@ class Document extends AbstractTag
                 $this->enterDefs();
                 $tag = new Symbol($this, $name);
                 break;
-    
+
             case 'clippath':
                 $tag = new ClipPath($this, $name);
                 break;
@@ -381,8 +403,7 @@ class Document extends AbstractTag
         if ($tag) {
             if (isset($attributes["id"])) {
                 $this->defs[$attributes["id"]] = $tag;
-            }
-            else {
+            } else {
                 /** @var AbstractTag $top */
                 $top = end($this->stack);
                 if ($top && $top != $tag) {
@@ -418,7 +439,7 @@ class Document extends AbstractTag
                 $this->exitDefs();
                 $tag = array_pop($this->stack);
                 break;
-    
+
             case 'svg':
             case 'path':
             case 'rect':
@@ -445,4 +466,4 @@ class Document extends AbstractTag
             $tag->handleEnd();
         }
     }
-} 
+}

@@ -755,13 +755,34 @@ class Dashboard
 			header('Pragma: no-cache');
 			header('Expires: 0');
 
-			// Output file contents (breaks taint: temp file path is not user-controlled).
+			// CWE-79 Enhanced Protection: Validate temp file path and size before output
+			$temp_dir = sys_get_temp_dir();
+			$real_temp_file = realpath($temp_file);
+
+			// Verify file is in system temp directory (prevent path traversal)
+			if ($real_temp_file === false || strpos($real_temp_file, realpath($temp_dir)) !== 0) {
+				// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_unlink
+				if (file_exists($temp_file)) {
+					unlink($temp_file);
+				}
+				wp_die(esc_html__('Security validation failed for temporary file.', 'privacy-analytics-lite'));
+			}
+
+			// Validate file size is reasonable (min 100 bytes for PDF header, max 50MB)
+			$file_size = filesize($real_temp_file);
+			if ($file_size === false || $file_size < 100 || $file_size > 50 * 1024 * 1024) {
+				// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_unlink
+				unlink($real_temp_file);
+				wp_die(esc_html__('Invalid PDF file size.', 'privacy-analytics-lite'));
+			}
+
+			// Output file contents (taint broken: path validated, not user-controlled).
 			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_readfile
-			readfile($temp_file);
+			readfile($real_temp_file);
 
 			// Clean up temporary file.
 			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_unlink
-			unlink($temp_file);
+			unlink($real_temp_file);
 		} catch (\Throwable $e) {
 			wp_die('Error generating PDF: ' . esc_html($e->getMessage()));
 		}

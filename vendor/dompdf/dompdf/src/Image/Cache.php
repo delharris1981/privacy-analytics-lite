@@ -138,8 +138,18 @@ class Cache
             }
 
             if ($type === "svg") {
+                $image_found = false;
+                $href_attribute = null;
+
+                // XXE Protection: Disable external entity loading (CWE-611)
+                // Note: PHP 8.0+ disables this by default, but explicit for clarity
+                if (PHP_VERSION_ID < 80000) {
+                    libxml_disable_entity_loader(true);
+                }
+
                 $parser = xml_parser_create("utf-8");
                 xml_parser_set_option($parser, XML_OPTION_CASE_FOLDING, false);
+                xml_parser_set_option($parser, XML_OPTION_SKIP_WHITE, 1);
                 xml_set_element_handler(
                     $parser,
                     function ($parser, $name, $attributes) use ($options, $parsed_url, $full_url) {
