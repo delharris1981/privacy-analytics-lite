@@ -193,7 +193,8 @@ class Cache
             $message = self::$error_message;
             // CWE-200 mitigation: Use basename to avoid exposing full file paths
             $safe_url = basename($url);
-            Helpers::record_warnings($e->getCode(), $e->getMessage() . " \n " . htmlspecialchars($safe_url, ENT_QUOTES, 'UTF-8'), $e->getFile(), $e->getLine());
+            $safe_file = basename($e->getFile());
+            Helpers::record_warnings($e->getCode(), $e->getMessage() . " \n " . htmlspecialchars($safe_url, ENT_QUOTES, 'UTF-8'), $safe_file, $e->getLine());
             if ($full_url !== null) {
                 self::$_cache[$full_url] = $resolved_url;
             }
