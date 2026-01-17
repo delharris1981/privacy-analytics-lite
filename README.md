@@ -137,12 +137,10 @@ The plugin automatically excludes:
 - **Efficient Queries**: Dashboard queries only aggregated data
 - **Optimized Storage**: Database size remains small through aggregation
 
-## Security
-
-- All database queries use prepared statements
-- Capability checks for admin access
-- Proper input sanitization and output escaping
-- No user data stored in plain text
+### PDF Generation Security
+- **Hardened Dompdf**: The PDF engine is configured in a restricted mode to prevent Server-Side Request Forgery (SSRF). 
+- **No Remote Loading**: Fetching external images, fonts, or stylesheets is disabled.
+- **No Scripting**: PHP execution and scripting within PDFs are explicitly disabled.
 
 ## Development
 

@@ -27,7 +27,9 @@ class PdfReportGenerator
     {
         $options = new Options();
         $options->set('isHtml5ParserEnabled', true);
-        $options->set('isRemoteEnabled', true); // For remote images if needed
+        $options->set('isRemoteEnabled', false); // Disabled for security (SSRF prevention)
+        $options->set('isPhpEnabled', false);    // Ensure PHP execution is disabled
+        $options->set('isFontSubsettingEnabled', true);
         $options->set('defaultFont', 'Helvetica');
 
         $dompdf = new Dompdf($options);

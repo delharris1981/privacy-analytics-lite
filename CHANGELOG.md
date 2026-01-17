@@ -5,6 +5,10 @@ All notable changes to Privacy-First Analytics Lite will be documented in this f
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.1] - 2026-01-17
+### Security
+- **Hardened PDF Generator**: Disabled remote resource loading and scripting in Dompdf to mitigate potential SSRF vulnerabilities identified in security scans.
+
 ## [1.6.0] - 2026-01-17
 ### Added
 - **PDF Export**: Added professional PDF report generation to the dashboard.
