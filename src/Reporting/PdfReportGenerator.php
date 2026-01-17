@@ -29,6 +29,8 @@ class PdfReportGenerator
         $options->set('isHtml5ParserEnabled', true);
         $options->set('isRemoteEnabled', false); // Disabled for security (SSRF prevention)
         $options->set('isPhpEnabled', false);    // Ensure PHP execution is disabled
+        $options->set('isJavascriptEnabled', false); // Disable JavaScript for security
+        $options->set('chroot', PRIVACY_ANALYTICS_LITE_PLUGIN_DIR); // Restrict filesystem access (Path Traversal prevention)
         $options->set('isFontSubsettingEnabled', true);
         $options->set('defaultFont', 'Helvetica');
 
