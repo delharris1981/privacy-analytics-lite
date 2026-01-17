@@ -195,12 +195,12 @@ class Dompdf
     private $quirksmode = false;
 
     /**
-    * Local file extension whitelist
-    *
-    * File extensions supported by dompdf for local files.
-    *
-    * @var array
-    */
+     * Local file extension whitelist
+     *
+     * File extensions supported by dompdf for local files.
+     *
+     * @var array
+     */
     private $allowedLocalFileExtensions = ["htm", "html"];
 
     /**
@@ -225,10 +225,20 @@ class Dompdf
      * @deprecated
      */
     public static $native_fonts = [
-        "courier", "courier-bold", "courier-oblique", "courier-boldoblique",
-        "helvetica", "helvetica-bold", "helvetica-oblique", "helvetica-boldoblique",
-        "times-roman", "times-bold", "times-italic", "times-bolditalic",
-        "symbol", "zapfdinbats"
+        "courier",
+        "courier-bold",
+        "courier-oblique",
+        "courier-boldoblique",
+        "helvetica",
+        "helvetica-bold",
+        "helvetica-oblique",
+        "helvetica-boldoblique",
+        "times-roman",
+        "times-bold",
+        "times-italic",
+        "times-bolditalic",
+        "symbol",
+        "zapfdinbats"
     ];
 
     /**
@@ -237,10 +247,20 @@ class Dompdf
      * @var array
      */
     public static $nativeFonts = [
-        "courier", "courier-bold", "courier-oblique", "courier-boldoblique",
-        "helvetica", "helvetica-bold", "helvetica-oblique", "helvetica-boldoblique",
-        "times-roman", "times-bold", "times-italic", "times-bolditalic",
-        "symbol", "zapfdinbats"
+        "courier",
+        "courier-bold",
+        "courier-oblique",
+        "courier-boldoblique",
+        "helvetica",
+        "helvetica-bold",
+        "helvetica-oblique",
+        "helvetica-boldoblique",
+        "times-roman",
+        "times-bold",
+        "times-italic",
+        "times-bolditalic",
+        "symbol",
+        "zapfdinbats"
     ];
 
     /**
@@ -371,6 +391,9 @@ class Dompdf
             }
         }
 
+        if (strpos($uri, '..') !== false) {
+            throw new Exception("Path traversal attempt detected in $uri");
+        }
         [$contents, $http_response_header] = Helpers::getFileContent($uri, $this->options->getHttpContext());
         if ($contents === null) {
             throw new Exception("File '$file' not found.");
@@ -594,7 +617,7 @@ class Dompdf
                 case "link":
                     if (
                         (stripos($tag->getAttribute("rel"), "stylesheet") !== false // may be "appendix stylesheet"
-                        || mb_strtolower($tag->getAttribute("type")) === "text/css")
+                            || mb_strtolower($tag->getAttribute("type")) === "text/css")
                         && stripos($tag->getAttribute("rel"), "alternate") === false // don't load "alternate stylesheet"
                     ) {
                         //Check if the css file is for an accepted media type
@@ -631,7 +654,8 @@ class Dompdf
                     // HTML 4.0 spec:
                     // http://www.w3.org/TR/REC-html40/present/styles.html#adef-media
                     // which states that the default media type is 'screen'
-                    if ($tag->hasAttributes() &&
+                    if (
+                        $tag->hasAttributes() &&
                         ($media = $tag->getAttribute("media")) &&
                         !in_array($media, $acceptedmedia)
                     ) {
@@ -867,7 +891,11 @@ class Dompdf
             "<span style='color: #900' title='Time'>%10.2f ms</span>" .
             "<span  title='Quirksmode'>  " .
             ($this->quirksmode ? "<span style='color: #d00'> ON</span>" : "<span style='color: #0d0'>OFF</span>") .
-            "</span><br />", $frames, $memory, $time);
+            "</span><br />",
+            $frames,
+            $memory,
+            $time
+        );
 
         $out .= ob_get_contents();
         ob_clean();

@@ -358,8 +358,14 @@ class Stylesheet
      * @param string $file
      * @param int $origin
      */
-    function load_css_file($file, $origin = self::ORIG_AUTHOR)
+    public function load_css_file($file, $origin = self::ORIG_AUTHOR)
     {
+        if (strpos($file, '..') !== false) {
+            return;
+        }
+        if ($file === "") {
+            return;
+        }
         if ($origin) {
             $this->_current_origin = $origin;
         }
@@ -398,7 +404,8 @@ class Stylesheet
             $good_mime_type = true;
             if (isset($http_response_header) && !$this->_dompdf->getQuirksmode()) {
                 foreach ($http_response_header as $_header) {
-                    if (preg_match("@Content-Type:\s*([\w/]+)@i", $_header, $matches) &&
+                    if (
+                        preg_match("@Content-Type:\s*([\w/]+)@i", $_header, $matches) &&
                         ($matches[1] !== "text/css")
                     ) {
                         $good_mime_type = false;
@@ -547,7 +554,7 @@ class Stylesheet
                 }
             }
             $tok = $this->parse_string($tok);
-    
+
 
             switch ($s) {
 
@@ -1009,7 +1016,7 @@ class Stylesheet
                         // https://www.w3.org/TR/CSS21/generate.html#undisplayed-counters
                         if ($content === "normal" || $content === "none") {
                             $specified = $style->get_specified("content");
-                            if (!\preg_match("/". self::PATTERN_CSS_VAR_FN . "/", $specified)) {
+                            if (!\preg_match("/" . self::PATTERN_CSS_VAR_FN . "/", $specified)) {
                                 continue;
                             } else {
                                 $content = [];
@@ -1161,22 +1168,22 @@ class Stylesheet
                                     list($media_query_feature, $media_query_value, $media_query_operator) = $media_query;
                                     switch ($media_query_feature) {
                                         case "height":
-                                            $feature_match = $paper_height === (float)$style->length_in_pt($media_query_value);
+                                            $feature_match = $paper_height === (float) $style->length_in_pt($media_query_value);
                                             break;
                                         case "min-height":
-                                            $feature_match = $paper_height >= (float)$style->length_in_pt($media_query_value);
+                                            $feature_match = $paper_height >= (float) $style->length_in_pt($media_query_value);
                                             break;
                                         case "max-height":
-                                            $feature_match = $paper_height <= (float)$style->length_in_pt($media_query_value);
+                                            $feature_match = $paper_height <= (float) $style->length_in_pt($media_query_value);
                                             break;
                                         case "width":
-                                            $feature_match = $paper_width === (float)$style->length_in_pt($media_query_value);
+                                            $feature_match = $paper_width === (float) $style->length_in_pt($media_query_value);
                                             break;
                                         case "min-width":
-                                            $feature_match = $paper_width >= (float)$style->length_in_pt($media_query_value);
+                                            $feature_match = $paper_width >= (float) $style->length_in_pt($media_query_value);
                                             break;
                                         case "max-width":
-                                            $feature_match = $paper_width <= (float)$style->length_in_pt($media_query_value);
+                                            $feature_match = $paper_width <= (float) $style->length_in_pt($media_query_value);
                                             break;
                                         case "orientation":
                                             $feature_match = $paper_orientation === $media_query_value;
@@ -1230,8 +1237,8 @@ class Stylesheet
                 if ($style->size !== "auto") {
                     list($paper_width, $paper_height) = $style->size;
                 }
-                $paper_width = $paper_width - (float)$style->length_in_pt($style->margin_left) - (float)$style->length_in_pt($style->margin_right);
-                $paper_height = $paper_height - (float)$style->length_in_pt($style->margin_top) - (float)$style->length_in_pt($style->margin_bottom);
+                $paper_width = $paper_width - (float) $style->length_in_pt($style->margin_left) - (float) $style->length_in_pt($style->margin_right);
+                $paper_height = $paper_height - (float) $style->length_in_pt($style->margin_top) - (float) $style->length_in_pt($style->margin_bottom);
                 $paper_orientation = ($paper_width > $paper_height ? "landscape" : "portrait");
             }
         }
@@ -1583,22 +1590,22 @@ EOL;
 
                     switch ($media_query_feature) {
                         case "height":
-                            $feature_match = $paper_height === (float)$style->length_in_pt($media_query_value);
+                            $feature_match = $paper_height === (float) $style->length_in_pt($media_query_value);
                             break;
                         case "min-height":
-                            $feature_match = $paper_height >= (float)$style->length_in_pt($media_query_value);
+                            $feature_match = $paper_height >= (float) $style->length_in_pt($media_query_value);
                             break;
                         case "max-height":
-                            $feature_match = $paper_height <= (float)$style->length_in_pt($media_query_value);
+                            $feature_match = $paper_height <= (float) $style->length_in_pt($media_query_value);
                             break;
                         case "width":
-                            $feature_match = $paper_width === (float)$style->length_in_pt($media_query_value);
+                            $feature_match = $paper_width === (float) $style->length_in_pt($media_query_value);
                             break;
                         case "min-width":
-                            $feature_match = $paper_width >= (float)$style->length_in_pt($media_query_value);
+                            $feature_match = $paper_width >= (float) $style->length_in_pt($media_query_value);
                             break;
                         case "max-width":
-                            $feature_match = $paper_width <= (float)$style->length_in_pt($media_query_value);
+                            $feature_match = $paper_width <= (float) $style->length_in_pt($media_query_value);
                             break;
                         case "orientation":
                             $feature_match = $paper_orientation === $media_query_value;
@@ -1715,7 +1722,7 @@ EOL;
             }
             if ($char === ';' && $prev !== '\\') {
                 $properties[] = substr($str, 0, $pos);
-                $str = substr($str, $pos+1);
+                $str = substr($str, $pos + 1);
                 $pos = 0;
                 $len = strlen($str);
             }
@@ -1783,12 +1790,16 @@ EOL;
         $DEBUGCSS = $this->_dompdf->getOptions()->getDebugCss();
 
         $sections = explode("}", $str);
-        if ($DEBUGCSS) print '[_parse_sections';
+        if ($DEBUGCSS)
+            print '[_parse_sections';
         foreach ($sections as $sect) {
             $i = mb_strpos($sect, "{", 0, "UTF-8");
-            if ($i === false) { continue; }
+            if ($i === false) {
+                continue;
+            }
 
-            if ($DEBUGCSS) print '[section';
+            if ($DEBUGCSS)
+                print '[section';
 
             $selector_str = preg_replace($patterns, $replacements, mb_substr($sect, 0, $i, "UTF-8"));
             $selectors = preg_split("/,(?![^\(]*\))/", $selector_str, 0, PREG_SPLIT_NO_EMPTY);
@@ -1799,10 +1810,12 @@ EOL;
                 $selector = trim($selector);
 
                 if ($selector === "") {
-                    if ($DEBUGCSS) print '#empty#';
+                    if ($DEBUGCSS)
+                        print '#empty#';
                     continue;
                 }
-                if ($DEBUGCSS) print '#' . $selector . '#';
+                if ($DEBUGCSS)
+                    print '#' . $selector . '#';
                 //if ($DEBUGCSS) { if (strpos($selector,'p') !== false) print '!!!p!!!#'; }
 
                 //FIXME: tag the selector with a hash of the media query to separate it from non-conditional styles (?), xpath comments are probably not what we want to do here
@@ -1839,7 +1852,8 @@ EOL;
         // Convert escaped hex characters (e.g. \A => newline)
         return preg_replace_callback(
             "/\\\\([0-9a-fA-F]{1,6})\s?/",
-            function ($matches) { return Helpers::unichr(hexdec($matches[1])); },
+            function ($matches) {
+                return Helpers::unichr(hexdec($matches[1])); },
             $string
         ) ?? "";
     }

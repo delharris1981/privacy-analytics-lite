@@ -2,7 +2,7 @@
 
 A privacy-compliant, server-side analytics plugin for WordPress that tracks page views without storing any personally identifiable information (PII), using cookies, or requiring JavaScript.
 
-- Version: 1.6.3
+- Version: 1.6.4
 - Requires at least: 6.8
 - Requires PHP: 8.2
 

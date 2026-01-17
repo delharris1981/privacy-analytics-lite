@@ -25,6 +25,13 @@ class PdfReportGenerator
      */
     public function generate(array $data): string
     {
+        // Recursively sanitize all input data to prevent injection/traversal.
+        array_walk_recursive($data, function (&$item) {
+            if (is_string($item)) {
+                $item = str_replace(['..', './', '..\\'], '', $item);
+            }
+        });
+
         $options = new Options();
         $options->set('isHtml5ParserEnabled', true);
         $options->set('isRemoteEnabled', false); // Disabled for security (SSRF prevention)

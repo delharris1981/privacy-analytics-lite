@@ -204,6 +204,9 @@ class HTML5
             $stream = $file;
             $close = false;
         } else {
+            if (strpos($file, '..') !== false) {
+                throw new \Exception("Path traversal attempt in HTML5 save");
+            }
             $stream = fopen($file, 'wb');
         }
         $options = array_merge($this->defaultOptions, $options);
