@@ -1,0 +1,29 @@
+
+Testing /Users/derek/Documents/Projects/Wordpress projects/privacy-analytics-lite ...
+
+Open Issues
+
+ ✗ [HIGH] Cross-site Scripting (XSS)
+   Finding ID: 5b16405d-6973-41f6-a046-b4b01afc7fc1
+   Path: src/Admin/Dashboard.php, line 728
+   Info: Unsanitized input from an HTTP parameter flows into the echo statement, where it is used to render an HTML page returned to the user. This may result in a Cross-Site Scripting attack (XSS).
+
+
+
+╭───────────────────────────────────────────────────────────────────────────────────────────────────╮
+│ Test Summary                                                                                      │
+│                                                                                                   │
+│   Organization:      delharris1981-Xik6pK5YCbuod34BTHA2Fi                                         │
+│   Test type:         Static code analysis                                                         │
+│   Project path:      /Users/derek/Documents/Projects/Wordpress projects/privacy-analytics-lite    │
+│                                                                                                   │
+│   Total issues:   1                                                                               │
+│   Ignored issues: 0 [ 0 HIGH  0 MEDIUM  0 LOW ]                                                   │
+│   Open issues:    1 [ 1 HIGH  0 MEDIUM  0 LOW ]                                                   │
+╰───────────────────────────────────────────────────────────────────────────────────────────────────╯
+    
+💡 Tip
+
+   To view ignored issues, use the --include-ignores option.
+                                                            
+

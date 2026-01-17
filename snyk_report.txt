@@ -1,0 +1,44 @@
+
+Testing /Users/derek/Documents/Projects/Wordpress projects/privacy-analytics-lite ...
+
+Open Issues
+
+ ✗ [LOW] Use of Password Hash With Insufficient Computational Effort
+   Finding ID: 19fed752-d646-4852-9e83-d59c36db1cab
+   Path: vendor/dompdf/dompdf/lib/Cpdf.php, line 3294
+   Info: hash hash (used in hash) is insecure. Consider changing it to a secure hashing algorithm.
+
+ ✗ [LOW] Use of Password Hash With Insufficient Computational Effort
+   Finding ID: 508ed898-8f28-4dd3-b50a-6af893b1993d
+   Path: vendor/dompdf/php-svg-lib/src/Svg/Surface/CPdf.php, line 2941
+   Info: hash hash (used in hash) is insecure. Consider changing it to a secure hashing algorithm.
+
+ ✗ [MEDIUM] Information Exposure - Server Error Message
+   Finding ID: ebacc2e6-486d-4a87-b566-7c781fc85a39
+   Path: vendor/dompdf/dompdf/src/Image/Cache.php, line 207
+   Info: An exception object flows to the echo statement and is leaked to the attacker. This may disclose important information about the application to an attacker.
+
+ ✗ [HIGH] Cross-site Scripting (XSS)
+   Finding ID: 5b16405d-6973-41f6-a046-b4b01afc7fc1
+   Path: src/Admin/Dashboard.php, line 730
+   Info: Unsanitized input from an HTTP parameter flows into the echo statement, where it is used to render an HTML page returned to the user. This may result in a Cross-Site Scripting attack (XSS).
+
+
+
+╭───────────────────────────────────────────────────────────────────────────────────────────────────╮
+│ Test Summary                                                                                      │
+│                                                                                                   │
+│   Organization:      delharris1981-Xik6pK5YCbuod34BTHA2Fi                                         │
+│   Test type:         Static code analysis                                                         │
+│   Project path:      /Users/derek/Documents/Projects/Wordpress projects/privacy-analytics-lite    │
+│                                                                                                   │
+│   Total issues:   4                                                                               │
+│   Ignored issues: 0 [ 0 HIGH  0 MEDIUM  0 LOW ]                                                   │
+│   Open issues:    4 [ 1 HIGH  1 MEDIUM  2 LOW ]                                                   │
+╰───────────────────────────────────────────────────────────────────────────────────────────────────╯
+    
+💡 Tip
+
+   To view ignored issues, use the --include-ignores option.
+                                                            
+

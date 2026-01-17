@@ -204,7 +204,8 @@ class Cache
             // CWE-200 mitigation: Use basename to avoid exposing full file paths
             $safe_url = basename($url);
             $safe_file = basename($e->getFile());
-            Helpers::record_warnings($e->getCode(), $e->getMessage() . " \n " . htmlspecialchars($safe_url, ENT_QUOTES, 'UTF-8'), $safe_file, $e->getLine());
+            // CWE-200 mitigation: Do not expose exception message to output. Use generic error.
+            Helpers::record_warnings($e->getCode(), "Image processing error for " . htmlspecialchars($safe_url, ENT_QUOTES, 'UTF-8'), $safe_file, $e->getLine());
             if ($full_url !== null) {
                 self::$_cache[$full_url] = $resolved_url;
             }
