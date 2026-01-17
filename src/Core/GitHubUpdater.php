@@ -113,8 +113,21 @@ final class GitHubUpdater
     {
         global $wp_filesystem;
 
-        // Check if it's our plugin.
-        if ($hook_extra['plugin'] !== $this->slug) {
+        // Check if it's a plugin.
+        if (!isset($hook_extra['type']) || 'plugin' !== $hook_extra['type']) {
+            return $result;
+        }
+
+        // Identify if this is our plugin.
+        $is_our_plugin = false;
+
+        if (isset($hook_extra['plugin']) && $hook_extra['plugin'] === $this->slug) {
+            $is_our_plugin = true;
+        } elseif (isset($result['destination_name']) && $result['destination_name'] === dirname($this->slug)) {
+            $is_our_plugin = true;
+        }
+
+        if (!$is_our_plugin) {
             return $result;
         }
 

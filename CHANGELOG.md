@@ -5,6 +5,15 @@ All notable changes to Privacy-First Analytics Lite will be documented in this f
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.0] - 2026-01-17
+### Added
+- **PDF Export**: Added professional PDF report generation to the dashboard.
+- **Reporting**: Include Device Types and Operating System statistics in the PDF report.
+- **Automation**: Implemented GitHub Actions for automatic production bundling and releases.
+
+### Fixed
+- **Updater**: Fixed "Undefined array key 'plugin'" warning during manual plugin installations/updates via upload.
+
 ## [1.5.3] - 2026-01-16
 ### Fixed
 - **Dashboard UI**: Fixed critical CSS layout regression where an extra closing div caused the footer to display incorrectly.
