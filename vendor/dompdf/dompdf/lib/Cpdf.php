@@ -4650,7 +4650,8 @@ EOT;
         $font = array_filter(
             $this->objects[$this->currentNode]['info']['fonts'],
             function ($item) use ($currentFontNum) {
-                return $item['fontNum'] == $currentFontNum; }
+                return $item['fontNum'] == $currentFontNum;
+            }
         );
 
         $this->o_acroform(
@@ -6635,7 +6636,8 @@ EOT;
         // note that this function is unable to operate on a remote file.
 
         if (substr($img, 0, 5) == 'data:') {
-            $filename = 'data-' . hash('md4', $img);
+            // CWE-916: Upgraded from MD4 to SHA-256 for cache key generation
+            $filename = 'data-' . hash('sha256', $img);
         } else {
             if (!file_exists($img)) {
                 return;

@@ -129,7 +129,7 @@ class FontMetrics
         if (is_readable($legacyCacheFile)) {
             $fontDir = $this->options->getFontDir();
             $rootDir = $this->options->getRootDir();
-    
+
             $cacheDataClosure = require $legacyCacheFile;
             $cacheData = is_array($cacheDataClosure) ? $cacheDataClosure : $cacheDataClosure($fontDir, $rootDir);
             if (is_array($cacheData)) {
@@ -181,7 +181,8 @@ class FontMetrics
 
         $styleString = $this->getType("{$style['weight']} {$style['style']}");
 
-        $remoteHash = md5($remoteFile);
+        // CWE-916: Upgraded from MD5 to SHA-256 for font file hash generation
+        $remoteHash = hash('sha256', $remoteFile);
 
         $prefix = $fontname . "_" . $styleString;
         $prefix = trim($prefix, "-");
@@ -243,7 +244,7 @@ class FontMetrics
 
         unlink($localTempFile);
 
-        if ( !file_exists("$localFilePath.ufm") ) {
+        if (!file_exists("$localFilePath.ufm")) {
             return false;
         }
 
@@ -256,9 +257,9 @@ class FontMetrics
         }
 
         // Save the changes
-        file_put_contents($localFilePath.$fontExtension, $remoteFileContent);
+        file_put_contents($localFilePath . $fontExtension, $remoteFileContent);
 
-        if ( !file_exists($localFilePath.$fontExtension) ) {
+        if (!file_exists($localFilePath . $fontExtension)) {
             unlink("$localFilePath.ufm");
             return false;
         }
@@ -498,19 +499,19 @@ class FontMetrics
             if (isset($families[$family][$subtype])) {
                 return $cache[$familyRaw][$subtypeRaw] = $families[$family][$subtype];
             }
-    
+
             if (!isset($families[$family])) {
                 continue;
             }
-    
+
             $family = $families[$family];
-    
+
             foreach ($family as $sub => $font) {
                 if (strpos($subtype, $sub) !== false) {
                     return $cache[$familyRaw][$subtypeRaw] = $font;
                 }
             }
-    
+
             if ($subtype !== "normal") {
                 foreach ($family as $sub => $font) {
                     if ($sub !== "normal") {
@@ -518,14 +519,14 @@ class FontMetrics
                     }
                 }
             }
-    
+
             $subtype = "normal";
-    
+
             if (isset($family[$subtype])) {
                 return $cache[$familyRaw][$subtypeRaw] = $family[$subtype];
             }
         }
-        
+
         return null;
     }
 
@@ -574,7 +575,7 @@ class FontMetrics
         if (preg_match('/bold/i', $type)) {
             $weight = 700;
         } elseif (preg_match('/([1-9]00)/', $type, $match)) {
-            $weight = (int)$match[0];
+            $weight = (int) $match[0];
         } else {
             $weight = 400;
         }
@@ -589,7 +590,7 @@ class FontMetrics
 
         return $style === null
             ? $weight
-            : $weight.'_'.$style;
+            : $weight . '_' . $style;
     }
 
     /**

@@ -5,6 +5,22 @@ All notable changes to Privacy-First Analytics Lite will be documented in this f
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.7.0] - 2026-01-17
+### Security
+- **CWE-916 Mitigation (Low Priority)**: Upgraded weak cryptographic hash algorithms to SHA-256 for cache key generation and file checksums
+  - MD4 → SHA-256 in `vendor/dompdf/dompdf/lib/Cpdf.php` (data URI cache keys)
+  - MD5 → SHA-256 in `vendor/dompdf/dompdf/src/Css/Stylesheet.php` (CSS blob hashing)
+  - MD5 → SHA-256 in `vendor/dompdf/dompdf/src/FontMetrics.php` (font file hashing)
+  - MD5 → SHA-256 in `vendor/dompdf/php-svg-lib/src/Svg/Surface/CPdf.php` (file checksums)
+
+### Performance
+- **Cache Invalidation**: First PDF render after update will be slower while caches rebuild with new hash algorithm
+
+### Technical Notes
+- Manual vendor file modifications require reapplication after `composer update`
+- `thecodingmachine/safe` wrapper functions documented as false positives (not actual security issues)
+- These hashes are NOT used for password storage - only for cache keys and data identification
+
 ## [1.6.9] - 2026-01-17
 ### Security
 - **CWE-79 Enhancement (High Priority)**: Added enhanced temp file validation for PDF exports with `realpath()` path verification and file size constraints (100 bytes - 50MB) to prevent path traversal and ensure valid PDF output.

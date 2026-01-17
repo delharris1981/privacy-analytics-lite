@@ -1332,7 +1332,8 @@ EOL;
                 $len = $matches[0][1] - $start;
             }
             $data_uri = substr($css, $start, $len);
-            $data_uri_hash = md5($data_uri);
+            // CWE-916: Upgraded from MD5 to SHA-256 for data URI hashing
+            $data_uri_hash = hash('sha256', $data_uri);
             $this->_blobs[$data_uri_hash] = $data_uri;
             $css = substr($css, 0, $start) . "blob://" . $data_uri_hash . ($len > 0 ? substr($css, $start + $len) : "");
             $offset = $start + 7 + strlen($data_uri_hash);
