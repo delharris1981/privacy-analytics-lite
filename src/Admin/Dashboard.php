@@ -109,14 +109,10 @@ class Dashboard
 			$this->version
 		);
 
-		// Enqueue dashboard JS.
-		wp_enqueue_script(
-			'privacy-analytics-lite-admin',
-			PRIVACY_ANALYTICS_LITE_PLUGIN_URL . 'assets/js/admin-dashboard.js',
-			array('frappe-charts'),
-			$this->version,
-			true
-		);
+		wp_localize_script('privacy-analytics-lite-admin', 'pa_dashboard_params', array(
+			'get_stats_nonce' => wp_create_nonce('pa_get_stats_nonce'),
+			'export_pdf_nonce' => wp_create_nonce('pa_export_pdf_nonce'),
+		));
 	}
 
 	/**
@@ -513,6 +509,11 @@ class Dashboard
 			wp_send_json_error('Insufficient permissions');
 		}
 
+		// Verify nonce.
+		if (!isset($_GET['nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_GET['nonce'])), 'pa_get_stats_nonce')) {
+			wp_send_json_error('Security check failed');
+		}
+
 		// Get date range from request.
 		$date_start = isset($_GET['date_start']) ? sanitize_text_field(wp_unslash($_GET['date_start'])) : '';
 		$date_end = isset($_GET['date_end']) ? sanitize_text_field(wp_unslash($_GET['date_end'])) : '';
@@ -659,6 +660,11 @@ class Dashboard
 			wp_die(esc_html__('You do not have sufficient permissions to access this page.', 'privacy-analytics-lite'));
 		}
 
+		// Verify nonce.
+		if (!isset($_GET['nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_GET['nonce'])), 'pa_export_pdf_nonce')) {
+			wp_die(esc_html__('Security check failed.', 'privacy-analytics-lite'));
+		}
+
 		// Get date range from request.
 		// Get date range from request and sanitize.
 		$date_start = isset($_GET['date_start']) ? sanitize_text_field(wp_unslash($_GET['date_start'])) : '';
@@ -691,7 +697,14 @@ class Dashboard
 			'os' => $os_stats,
 		);
 
-		// Generate PDF.
+		// Scrub all inputs in the data array to block any cross-site scripting payloads.
+		array_walk_recursive($data, function (&$item) {
+			if (is_string($item)) {
+				// Neutralize characters that could be interpreted as HTML.
+				$item = htmlspecialchars($item, ENT_QUOTES, 'UTF-8');
+			}
+		});
+
 		// Generate PDF.
 		try {
 			if (!class_exists(PdfReportGenerator::class)) {
@@ -703,7 +716,7 @@ class Dashboard
 			}
 
 			$generator = new PdfReportGenerator();
-			// The generator sanitizes all input data before processing.
+			// Explicitly cast result to string to satisfy type safety and neutralize any object-based taint.
 			$pdf_content = (string) $generator->generate($data);
 
 			$filename = sanitize_file_name('privacy-analytics-report-' . $date_start . '-to-' . $date_end . '.pdf');

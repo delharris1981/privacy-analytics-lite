@@ -286,7 +286,8 @@
 				const params = new URLSearchParams({
 					action: 'privacy_analytics_export_pdf_report',
 					date_start: currentDateRange.start,
-					date_end: currentDateRange.end
+					date_end: currentDateRange.end,
+					nonce: pa_dashboard_params.export_pdf_nonce
 				});
 
 				// Trigger download
@@ -495,7 +496,8 @@
 		const params = new URLSearchParams({
 			action: 'privacy_analytics_get_stats',
 			date_start: currentDateRange.start,
-			date_end: currentDateRange.end
+			date_end: currentDateRange.end,
+			nonce: pa_dashboard_params.get_stats_nonce
 		});
 
 		fetch(ajaxurl + '?' + params.toString())

@@ -5,6 +5,12 @@ All notable changes to Privacy-First Analytics Lite will be documented in this f
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.6] - 2026-01-17
+### Security
+- **Hardened PDF Export**: Implemented explicit input scrubbing using `htmlspecialchars` on all data passed to the PDF generator to eliminate CWE-79 findings.
+- **Added Nonce Verification**: Implemented nonce checks for all dashboard AJAX actions (stats retrieval and PDF export) to prevent CSRF and unauthorized requests.
+- **Improved Data Integrity**: Fixed double comments and redundant string casting in the dashboard logic.
+
 ## [1.6.5] - 2026-01-17
 ### Security
 - **Mitigated Cross-Site Scripting (XSS)**: Escaped debug and warning messages in integrated libraries (Dompdf) using `htmlspecialchars`.

@@ -9,7 +9,8 @@
  * Author: Your Name
  * Author URI: https://example.com
  * License: GPL v2 or later
- * License URI: https://www.gnu.org/licenses/gpl-2.0.html
+ * License: GPL-2.0-or-later
+ * License URI: https://www.gnu.org/licenses/gpl-2.0-or-later.html
  * Text Domain: privacy-analytics-lite
  *
  * @package PrivacyAnalytics\Lite
@@ -23,7 +24,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants.
-define('PRIVACY_ANALYTICS_LITE_VERSION', '1.6.5');
+define('PRIVACY_ANALYTICS_LITE_VERSION', '1.6.6');
 define('PRIVACY_ANALYTICS_LITE_PLUGIN_FILE', __FILE__);
 define('PRIVACY_ANALYTICS_LITE_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('PRIVACY_ANALYTICS_LITE_PLUGIN_URL', plugin_dir_url(__FILE__));
