@@ -260,21 +260,39 @@
 	 */
 	function initExportButton() {
 		const exportBtn = document.getElementById('pa-export-report-btn');
-		if (!exportBtn) return;
+		const exportPdfBtn = document.getElementById('pa-export-pdf-btn');
 
-		exportBtn.addEventListener('click', function () {
-			if (typeof ajaxurl === 'undefined') return;
+		if (exportBtn) {
+			exportBtn.addEventListener('click', function () {
+				if (typeof ajaxurl === 'undefined') return;
 
-			// Construct export URL
-			const params = new URLSearchParams({
-				action: 'privacy_analytics_export_report',
-				date_start: currentDateRange.start,
-				date_end: currentDateRange.end
+				// Construct export URL
+				const params = new URLSearchParams({
+					action: 'privacy_analytics_export_report',
+					date_start: currentDateRange.start,
+					date_end: currentDateRange.end
+				});
+
+				// Trigger download
+				window.location.href = ajaxurl + '?' + params.toString();
 			});
+		}
 
-			// Trigger download
-			window.location.href = ajaxurl + '?' + params.toString();
-		});
+		if (exportPdfBtn) {
+			exportPdfBtn.addEventListener('click', function () {
+				if (typeof ajaxurl === 'undefined') return;
+
+				// Construct export URL
+				const params = new URLSearchParams({
+					action: 'privacy_analytics_export_pdf_report',
+					date_start: currentDateRange.start,
+					date_end: currentDateRange.end
+				});
+
+				// Trigger download
+				window.location.href = ajaxurl + '?' + params.toString();
+			});
+		}
 	}
 
 	/**

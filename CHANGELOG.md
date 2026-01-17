@@ -159,6 +159,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Export functionality for statistics (CSV report)
+- Export functionality for statistics (Professional PDF report)
 
 ### Planned Features
 - Additional chart types

@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace PrivacyAnalytics\Lite\Admin;
 
 use PrivacyAnalytics\Lite\Database\TableManager;
+use PrivacyAnalytics\Lite\Reporting\PdfReportGenerator;
 
 /**
  * Admin dashboard class.
@@ -56,6 +57,7 @@ class Dashboard
 		add_action('wp_ajax_pa_toggle_heatmap', array($this, 'ajax_toggle_heatmap'));
 		add_action('admin_notices', array($this, 'maybe_display_update_notice'));
 		add_action('wp_ajax_privacy_analytics_export_report', array($this, 'ajax_export_report'));
+		add_action('wp_ajax_privacy_analytics_export_pdf_report', array($this, 'ajax_export_pdf_report'));
 	}
 
 	/**
@@ -635,6 +637,71 @@ class Dashboard
 		}
 
 		fclose($output);
+		exit;
+	}
+
+
+
+	/**
+	 * Export statistics report to PDF.
+	 *
+	 * @return void
+	 */
+	public function ajax_export_pdf_report(): void
+	{
+		// Check capability.
+		if (!current_user_can('manage_options')) {
+			wp_die(esc_html__('You do not have sufficient permissions to access this page.', 'privacy-analytics-lite'));
+		}
+
+		// Get date range from request.
+		$date_start = isset($_GET['date_start']) ? sanitize_text_field(wp_unslash($_GET['date_start'])) : '';
+		$date_end = isset($_GET['date_end']) ? sanitize_text_field(wp_unslash($_GET['date_end'])) : '';
+
+		// Validate dates.
+		if (!$date_start || !$date_end) {
+			// Fallback to last 30 days.
+			$date_end = current_time('Y-m-d');
+			$date_start = date('Y-m-d', strtotime('-29 days', strtotime($date_end)));
+		}
+
+		// Fetch stats.
+		$summary_stats = $this->get_summary_stats($date_start, $date_end);
+		$daily_trends = $this->get_daily_trends($date_start, $date_end);
+		$top_pages = $this->get_top_pages($date_start, $date_end);
+		$referrer_stats = $this->get_referrer_stats($date_start, $date_end);
+
+		// Prepare data for generator.
+		$data = array(
+			'date_start' => $date_start,
+			'date_end' => $date_end,
+			'summary' => $summary_stats,
+			'daily_trends' => $daily_trends,
+			'top_pages' => $top_pages,
+			'referrers' => $referrer_stats,
+		);
+
+		// Generate PDF.
+		try {
+			if (!class_exists(PdfReportGenerator::class)) {
+				throw new \Exception('PDF Generator class not found. Please run composer update.');
+			}
+
+			$generator = new PdfReportGenerator();
+			$pdf_content = $generator->generate($data);
+
+			$filename = 'privacy-analytics-report-' . $date_start . '-to-' . $date_end . '.pdf';
+
+			header('Content-Type: application/pdf');
+			header('Content-Disposition: attachment; filename="' . $filename . '"');
+			header('Pragma: no-cache');
+			header('Expires: 0');
+
+			echo $pdf_content;
+		} catch (\Exception $e) {
+			wp_die('Error generating PDF: ' . esc_html($e->getMessage()));
+		}
+
 		exit;
 	}
 
