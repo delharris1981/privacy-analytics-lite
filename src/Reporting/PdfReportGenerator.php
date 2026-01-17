@@ -101,7 +101,6 @@ class PdfReportGenerator
                 </table>
             </div>
 
-            <div class="page-break"></div>
 
             <div class="section">
                 <h2>Top Pages</h2>
