@@ -72,7 +72,11 @@ class PdfReportGenerator
             <meta charset="UTF-8">
             <title>Privacy Analytics Report</title>
             <style>
-                <?php echo $css; ?>
+                <?php
+                // Internal static CSS - safe for output.
+                // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+                echo $css;
+                ?>
             </style>
         </head>
 

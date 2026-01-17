@@ -660,12 +660,14 @@ class Dashboard
 		}
 
 		// Get date range from request.
+		// Get date range from request and sanitize.
 		$date_start = isset($_GET['date_start']) ? sanitize_text_field(wp_unslash($_GET['date_start'])) : '';
 		$date_end = isset($_GET['date_end']) ? sanitize_text_field(wp_unslash($_GET['date_end'])) : '';
 
-		// Validate dates.
-		if (!$date_start || !$date_end) {
-			// Fallback to last 30 days.
+		// Strict regex validation for dates (YYYY-MM-DD).
+		$date_pattern = '/^\d{4}-\d{2}-\d{2}$/';
+		if (!preg_match($date_pattern, $date_start) || !preg_match($date_pattern, $date_end)) {
+			// Fallback to last 30 days if invalid.
 			$date_end = current_time('Y-m-d');
 			$date_start = date('Y-m-d', strtotime('-29 days', strtotime($date_end)));
 		}
@@ -710,6 +712,8 @@ class Dashboard
 			header('Pragma: no-cache');
 			header('Expires: 0');
 
+			// Output binary PDF content.
+			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			echo $pdf_content;
 		} catch (\Throwable $e) {
 			wp_die('Error generating PDF: ' . esc_html($e->getMessage()));
