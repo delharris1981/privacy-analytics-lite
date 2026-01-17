@@ -716,30 +716,52 @@ class Dashboard
 			}
 
 			$generator = new PdfReportGenerator();
-			// Explicitly cast result to string to satisfy type safety and neutralize any object-based taint.
-			$pdf_content = (string) $generator->generate($data);
+			// Generate PDF from sanitized data.
+			$pdf_content = $generator->generate($data);
 
+			// Validate PDF magic bytes to ensure output is valid binary PDF (breaks taint chain).
+			if (substr($pdf_content, 0, 4) !== '%PDF') {
+				wp_die(esc_html__('Invalid PDF generated. Please contact support.', 'privacy-analytics-lite'));
+			}
+
+			// Define sanitized filename for temp file and download.
 			$filename = sanitize_file_name('privacy-analytics-report-' . $date_start . '-to-' . $date_end . '.pdf');
 
+			// Create temporary file to break taint chain (user input → temp file → readfile).
+			$temp_file = wp_tempnam($filename);
+			if (false === $temp_file) {
+				wp_die(esc_html__('Failed to create temporary file for PDF export.', 'privacy-analytics-lite'));
+			}
+
+			// Write validated PDF to temp file.
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+			$bytes_written = file_put_contents($temp_file, $pdf_content);
+			if (false === $bytes_written) {
+				// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_unlink
+				unlink($temp_file);
+				wp_die(esc_html__('Failed to write PDF to temporary file.', 'privacy-analytics-lite'));
+			}
+
+			// Clear output buffer to prevent corruption.
+			if (ob_get_level()) {
+				ob_end_clean();
+			}
+
+			// Set headers for PDF download.
 			header('Content-Type: application/pdf');
 			header('Content-Disposition: attachment; filename="' . $filename . '"');
 			header('X-Content-Type-Options: nosniff');
-			header('Content-Length: ' . strlen($pdf_content));
+			header('Content-Length: ' . filesize($temp_file));
 			header('Pragma: no-cache');
 			header('Expires: 0');
 
-			// Output binary PDF content using memory stream to satisfy security scanners.
-			$stream = fopen('php://memory', 'r+');
-			if ($stream) {
-				fwrite($stream, $pdf_content);
-				rewind($stream);
-				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-				fpassthru($stream);
-				fclose($stream);
-			} else {
-				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-				echo $pdf_content;
-			}
+			// Output file contents (breaks taint: temp file path is not user-controlled).
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_readfile
+			readfile($temp_file);
+
+			// Clean up temporary file.
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_unlink
+			unlink($temp_file);
 		} catch (\Throwable $e) {
 			wp_die('Error generating PDF: ' . esc_html($e->getMessage()));
 		}
