@@ -6,10 +6,9 @@
  * Version: 1.7.10
  * Requires at least: 6.8
  * Requires PHP: 8.2
- * Author: Your Name
- * Author URI: https://example.com
+ * Author: Del Harris
+ * Author URI: https://github.com/delharris1981/privacy-analytics-lite/tree/main
  * License: GPL v2 or later
- * License: GPL-2.0-or-later
  * License URI: https://www.gnu.org/licenses/gpl-2.0-or-later.html
  * Text Domain: privacy-analytics-lite
  *
