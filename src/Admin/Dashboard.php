@@ -818,8 +818,10 @@ class Dashboard
 			wp_send_json_error('Insufficient permissions');
 		}
 
-		// Nonce check skipped for now as we haven't localized one yet.
-		// check_ajax_referer('pa_toggle_heatmap', 'nonce');
+		// Verify nonce.
+		if (!isset($_POST['nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'pa_get_stats_nonce')) {
+			wp_send_json_error('Security check failed');
+		}
 
 		$page = isset($_POST['page']) ? sanitize_text_field(wp_unslash($_POST['page'])) : '';
 		$state = isset($_POST['state']) ? sanitize_text_field(wp_unslash($_POST['state'])) : '';

@@ -147,7 +147,8 @@
 				const params = new URLSearchParams({
 					action: 'pa_toggle_heatmap',
 					page: page,
-					state: currentState
+					state: currentState,
+					nonce: pa_dashboard_params.get_stats_nonce
 				});
 
 				fetch(ajaxurl, {

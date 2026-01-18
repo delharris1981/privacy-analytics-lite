@@ -24,7 +24,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants.
-define('PRIVACY_ANALYTICS_LITE_VERSION', '1.7.9');
+define('PRIVACY_ANALYTICS_LITE_VERSION', '1.7.10');
 define('PRIVACY_ANALYTICS_LITE_PLUGIN_FILE', __FILE__);
 define('PRIVACY_ANALYTICS_LITE_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('PRIVACY_ANALYTICS_LITE_PLUGIN_URL', plugin_dir_url(__FILE__));
