@@ -5,6 +5,10 @@ All notable changes to Privacy-First Analytics Lite will be documented in this f
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.7.9] - 2026-01-18
+### Packaging
+- **Release Automation**: Ensured correct version synchronization and main branch deployment for GitHub Releases.
+
 ## [1.7.8] - 2026-01-18
 ### Fixed
 - **Dashboard Exports**: Resolved issue where "Export CSV" and "Export PDF" buttons were unresponsive due to missing JavaScript enqueues.
