@@ -3,7 +3,7 @@
  * Plugin Name: Privacy-First Analytics Lite
  * Plugin URI: https://example.com/privacy-analytics-lite
  * Description: Privacy-compliant, server-side analytics with aggregated data. No cookies, no PII, zero tracking scripts.
- * Version: 1.7.9
+ * Version: 1.7.10
  * Requires at least: 6.8
  * Requires PHP: 8.2
  * Author: Your Name
