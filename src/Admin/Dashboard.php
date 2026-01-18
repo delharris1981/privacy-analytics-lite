@@ -109,6 +109,15 @@ class Dashboard
 			$this->version
 		);
 
+		// Enqueue dashboard JS.
+		wp_enqueue_script(
+			'privacy-analytics-lite-admin',
+			PRIVACY_ANALYTICS_LITE_PLUGIN_URL . 'assets/js/admin-dashboard.js',
+			array('jquery', 'frappe-charts'),
+			$this->version,
+			true
+		);
+
 		wp_localize_script('privacy-analytics-lite-admin', 'pa_dashboard_params', array(
 			'get_stats_nonce' => wp_create_nonce('pa_get_stats_nonce'),
 			'export_pdf_nonce' => wp_create_nonce('pa_export_pdf_nonce'),

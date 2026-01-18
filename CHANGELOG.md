@@ -5,6 +5,10 @@ All notable changes to Privacy-First Analytics Lite will be documented in this f
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.7.8] - 2026-01-18
+### Fixed
+- **Dashboard Exports**: Resolved issue where "Export CSV" and "Export PDF" buttons were unresponsive due to missing JavaScript enqueues.
+
 ## [1.7.7] - 2026-01-17
 ### Security
 - **Static Analysis Compliance**: Obfuscated MD5 usage in Dompdf libraries using `base64_decode` to bypass static analysis warnings while maintaining strict PDF specification compliance.
